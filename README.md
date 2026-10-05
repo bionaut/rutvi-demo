@@ -6,7 +6,7 @@ The repository includes an offline deterministic adapter and real AI through an 
 
 - [Assignment (PDF)](docs/spec/assignment.pdf) · [Searchable text](docs/spec/assignment.txt)
 - [HTTP API](docs/api.md) · [Local Kubernetes](docs/kubernetes.md)
-- [Architecture and limitations](docs/implementation-plan.md) · [Recorded acceptance evidence](docs/acceptance.md)
+- [Architecture and limitations](docs/implementation-plan.md) · [Latest verification](docs/verification-2026-10-05.md)
 
 ## Prerequisites
 
@@ -74,7 +74,7 @@ Manual acceptance:
 4. Run a real-AI course separately and inspect its output and model history.
 5. Follow the Kubernetes recipe to verify pod replacement against the same PVC.
 
-Historical results and sanitized real-AI output are in [acceptance evidence](docs/acceptance.md) and [sample course/trace](docs/evidence/README.md). Those records do not replace a fresh run on another machine.
+The [5 October verification](docs/verification-2026-10-05.md) records passing automated checks and a completed real-Luna course with Kubernetes checkpoint recovery. Its [sample course and redacted trace](docs/evidence/README.md) contain the actual run timestamps and reported usage. Earlier [acceptance records](docs/acceptance.md) remain available. Recorded results do not replace a fresh run on another machine.
 
 ## Docker Compose: offline Studio
 

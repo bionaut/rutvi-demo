@@ -15,11 +15,14 @@ defmodule RutviExercise.Runtime.Delegation do
       Store.transact(fn data ->
         t = data.tasks[task.task_id]
 
-        if Runtime.terminal?(t.status),
-          do: {:ok, data},
-          else:
-            {:ok,
-             Runtime.put_task(data, %{t | status: :waiting_for_children}, :waiting_for_children)}
+        # Parallel branches share the parent. Preserve another branch's
+        # suspension and any replay queued while this attempt is unwinding.
+        if t.attempt != task.attempt or Runtime.terminal?(t.status) or
+             t.status == :queued or !is_nil(Map.get(t, :paused_on_child)),
+           do: {:ok, data},
+           else:
+             {:ok,
+              Runtime.put_task(data, %{t | status: :waiting_for_children}, :waiting_for_children)}
       end)
 
       await_child(task, handle.task_id)
@@ -33,9 +36,10 @@ defmodule RutviExercise.Runtime.Delegation do
           Store.transact(fn data ->
             parent = data.tasks[task.task_id]
 
-            if parent.attempt == task.attempt and !Runtime.terminal?(parent.status),
-              do: {:ok, Runtime.put_task(data, %{parent | status: :running}, :running)},
-              else: {:ok, data}
+            if parent.attempt == task.attempt and !Runtime.terminal?(parent.status) and
+                 parent.status != :queued and is_nil(Map.get(parent, :paused_on_child)),
+               do: {:ok, Runtime.put_task(data, %{parent | status: :running}, :running)},
+               else: {:ok, data}
           end)
 
           {:ok, snapshot.result}

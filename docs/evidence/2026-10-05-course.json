@@ -1,0 +1,115 @@
+{
+  "audience": "Začínající backend vývojáři",
+  "lessons": [
+    {
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S1"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S2"
+        }
+      ],
+      "id": "L1",
+      "objective_id": "O1",
+      "revision": 0,
+      "text": "V událostmi řízeném systému si nejprve ujasněte, zda zpráva popisuje něco, co se už stalo, nebo žádá někoho o akci. Událost zaznamenává nastalou skutečnost, například „platba přijata“. Příkaz naopak žádá o provedení akce, například „zpracuj platbu“. Tento rozdíl pomáhá navrhovat jasné rozhraní mezi částmi aplikace: příkaz vyjadřuje záměr, událost oznamuje výsledek nebo změnu, která už nastala. (S1/P1)\n\nUdálost může zajímat více konzumentů. Producent ji zveřejní a nemusí předem znát všechny části systému, které na ni budou reagovat. Díky tomu lze přidat další konzument, aniž by producent musel znát jeho vnitřní fungování. (S1/P1)\n\nPři návrhu ale počítejte s tím, že doručení alespoň jednou může znamenat, že stejná událost dorazí opakovaně. Konzument proto může dostat tutéž zprávu vícekrát; samotné doručení není zárukou jedinečného zpracování. (S2/P1)\n\nStejně důležité je rozlišovat přijetí zprávy od dokončení obchodní operace. Potvrzení, že systém zprávu přijal, samo o sobě nedokazuje, že následná operace proběhla úspěšně. Při čtení logů či návrhu potvrzování si proto ověřte, kterou fázi potvrzení skutečně označuje. Prakticky: událost berte jako oznámení faktu, počítejte s možným opakováním doručení a stav obchodní operace sledujte odděleně od potvrzení přijetí zprávy. (S2/P1)"
+    },
+    {
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S3"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S4"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S5"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S6"
+        }
+      ],
+      "id": "L2",
+      "objective_id": "O2",
+      "revision": 0,
+      "text": "Při zpracování událostí počítejte s tím, že stejná událost může dorazit vícekrát. Uložte její identifikátor společně se změnou aplikačních dat v jedné atomické transakci. Když přijde znovu, podle identifikátoru poznáte, že obchodní účinek už byl proveden, a můžete ho přeskočit. Oddělené zápisy jsou rizikové: pád mezi nimi může zanechat nekonzistentní stav. (S3/P1)\n\nDočasnou chybu lze řešit opakováním s prodlevou a konečným limitem. Výsledek každého dokončeného kroku ukládejte, aby po restartu šlo pokračovat bez opakování těchto kroků; samotný restart totiž neobnoví ztracenou paměť procesu. (S4/P1)\n\nU externí služby je třeba počítat s neznámým výsledkem: proces může spadnout poté, co služba požadavek přijala, ale před uložením odpovědi. Bez idempotence nebo možnosti dotázat se na stav retry nezaručuje právě jeden externí účinek. (S6/P1)\n\nNezávislé úlohy spouštějte souběžně, ale jejich počet omezte, aby zátěž chránila navazující služby. Pořadí dokončení není zaručeno, takže krok závislý na výsledcích jiných úloh musí počkat, dokud potřebné výsledky nemá. (S5/P1)"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "O1",
+      "text": "Rozlišit událost od příkazu a popsat, proč producent nemusí znát konzumenty (S1/P1); vysvětlit, že doručení alespoň jednou může vést k duplicitám a potvrzení přijetí nedokazuje dokončení obchodní operace (S2/P1)."
+    },
+    {
+      "id": "O2",
+      "text": "Navrhnout bezpečné zpracování duplicit pomocí identifikátoru události a atomické transakce a vysvětlit limity opakování při pádu či neznámém výsledku externí operace (S3/P1, S4/P1, S6/P1); určit, kdy omezit souběh a čekat na závislé výsledky (S5/P1)."
+    }
+  ],
+  "outline": [
+    {
+      "lesson_id": "L1",
+      "objective_id": "O1"
+    },
+    {
+      "lesson_id": "L2",
+      "objective_id": "O2"
+    }
+  ],
+  "questions": [
+    {
+      "answer": "Událost popisuje nastalou skutečnost, příkaz žádá akci. Potvrzení přijetí zprávy samo nedokazuje dokončení obchodní operace.",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S1"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S2"
+        }
+      ],
+      "explanation": "Producent může událost zveřejnit, aniž zná všechny konzumenty. Protože doručení alespoň jednou připouští duplicity, potvrzení přijetí také nelze zaměnit za důkaz jedinečného či dokončeného obchodního zpracování.",
+      "id": "Q1",
+      "objective_id": "O1",
+      "question": "Jaký je rozdíl mezi událostí a příkazem a co znamená potvrzení přijetí zprávy?"
+    },
+    {
+      "answer": "Uložit identifikátor události a změnu aplikačních dat společně v jedné atomické transakci; opakovanou událost rozpoznat podle identifikátoru a účinek přeskočit.",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S3"
+        }
+      ],
+      "explanation": "Atomické uložení brání nekonzistenci, kterou mohou způsobit oddělené zápisy při pádu.",
+      "id": "Q2",
+      "objective_id": "O2",
+      "question": "Jak bezpečně zabránit tomu, aby opakované doručení stejné události znovu provedlo obchodní účinek?"
+    },
+    {
+      "answer": "Pád po přijetí požadavku, ale před uložením odpovědi, může zanechat neznámý výsledek; bez idempotence či dotazu na stav retry nezaručuje právě jeden účinek. Závislý krok musí počkat na potřebné výsledky.",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S6"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S5"
+        }
+      ],
+      "explanation": "Neznámý výsledek externí operace nelze bezpečně vyřešit pouhým opakováním. Nezávislé úlohy mohou běžet souběžně s limitem, ale pořadí dokončení není zaručeno.",
+      "id": "Q3",
+      "objective_id": "O2",
+      "question": "Proč retry samo o sobě nezaručuje právě jeden účinek při volání externí služby a jak postupovat u závislých úloh?"
+    }
+  ],
+  "title": "Základy událostmi řízených systémů"
+}
