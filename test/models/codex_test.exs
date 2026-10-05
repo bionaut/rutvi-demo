@@ -45,8 +45,8 @@ defmodule RutviExercise.Models.CodexTest do
 
     assert result == %{
              output: %{"answer" => "ready"},
-             model: "gpt-6-luna",
-             reasoning_effort: "low",
+             model: "gpt-6.1-sol",
+             reasoning_effort: "medium",
              usage: %{
                prompt_tokens: 4,
                completion_tokens: 2,
@@ -58,9 +58,9 @@ defmodule RutviExercise.Models.CodexTest do
 
     assert_received {:invoked, "/bin/echo", args, command_opts, schema_json}
     assert flag_value(args, "--ask-for-approval") == "never"
-    assert flag_value(args, "--model") == "gpt-6-luna"
+    assert flag_value(args, "--model") == "gpt-6.1-sol"
     assert flag_value(args, "--sandbox") == "read-only"
-    assert flag_value(args, "-c") == ~s(model_reasoning_effort="low")
+    assert flag_value(args, "-c") == ~s(model_reasoning_effort="medium")
     assert flag_value(args, "-C") == scratch
     assert "--ephemeral" in args
     assert "--ignore-user-config" in args
@@ -132,14 +132,14 @@ defmodule RutviExercise.Models.CodexTest do
              )
   end
 
-  test "classifies the CLI's explicit Luna model rejection accurately" do
+  test "classifies the CLI's explicit model rejection accurately" do
     error = %{
       "type" => "error",
       "status" => 400,
       "error" => %{
         "type" => "invalid_request_error",
         "message" =>
-          "The 'gpt-6-luna' model is not supported when using Codex with a ChatGPT account."
+          "The 'gpt-6.1-sol' model is not supported when using Codex with a ChatGPT account."
       }
     }
 

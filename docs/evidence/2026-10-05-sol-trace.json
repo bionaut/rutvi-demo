@@ -1,0 +1,2279 @@
+{
+  "status": "completed",
+  "reference_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+  "run_id": "kJEQb4j6B1JCUJivL9CzTKpk",
+  "provider": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "created_at_utc": "2026-10-05T14:48:01.876235Z",
+  "completed_at_utc": "2026-10-05T14:55:08.254063Z",
+  "elapsed_wall_ms": 426377,
+  "elapsed_includes_human_checkpoint_waits_and_pod_restart": true,
+  "model_response_count": 14,
+  "successful_model_responses": 10,
+  "failed_model_responses": 4,
+  "successful_response_usage": {
+    "cached_input_tokens": 0,
+    "completion_tokens": 4573,
+    "prompt_tokens": 178674,
+    "reasoning_output_tokens": 257,
+    "total_tokens": 183247
+  },
+  "currency_spend": null,
+  "errors": {
+    "invalid_output": 3,
+    "timeout": 1
+  },
+  "external_started": 32,
+  "external_finished": 33,
+  "peak_concurrency": 2,
+  "human_checkpoints_resumed": 2,
+  "kubernetes_recovery": {
+    "same_run_id": true,
+    "same_checkpoint_id": true,
+    "history_prefix_preserved": true,
+    "retained_events": 47,
+    "events_after_restart": 50,
+    "replacement_pod": true,
+    "verified_at_utc": "2026-10-05T14:49:44.731702Z"
+  },
+  "unauthorized_reads_denied": 2,
+  "trace_events": [
+    {
+      "type": "queued",
+      "event_id": "bZqbUrirwT8VsgLjectM2Ibb",
+      "sequence": 1,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211681876
+    },
+    {
+      "type": "running",
+      "event_id": "RYKnRNiAVnrpQFjaDaTQk1bz",
+      "sequence": 2,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 1,
+      "timestamp_ms": 1791211681885
+    },
+    {
+      "type": "queued",
+      "event_id": "16hsCnx0iyhnLYJOB2OH_OBi",
+      "sequence": 3,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211681901
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "u9LFvomtQq9PfMYDMhANe3B5",
+      "sequence": 4,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211681905
+    },
+    {
+      "type": "running",
+      "event_id": "-Ez5wNmIois4KtK3vJ3byRxM",
+      "sequence": 5,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "timestamp_ms": 1791211681907
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "wPXrfDorgYvGtBLmI3tD2nMI",
+      "sequence": 6,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211681912
+    },
+    {
+      "type": "external_started",
+      "event_id": "23V7RG6468c00o4Q5TEwZaHj",
+      "sequence": 7,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211681958
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "5Oh9DER8MHnwIJsok76jdu4k",
+      "sequence": 8,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "timestamp_ms": 1791211682010
+    },
+    {
+      "type": "external_finished",
+      "event_id": "GdsNhOUcwEwPEA_DpeJ1-KPv",
+      "sequence": 9,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699663
+    },
+    {
+      "type": "model_response",
+      "event_id": "433ctaWrbRuoVQgK7kQIu7oP",
+      "sequence": 10,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211699694,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 236,
+        "prompt_tokens": 17300,
+        "reasoning_output_tokens": 21,
+        "total_tokens": 17536
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "external_started",
+      "event_id": "xEn9U1C0JoDycLk_VIC6QuNt",
+      "sequence": 11,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699699
+    },
+    {
+      "type": "external_finished",
+      "event_id": "z5ynNUPknXAC-c2IMUiHoTxj",
+      "sequence": 12,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699705
+    },
+    {
+      "type": "step_completed",
+      "event_id": "Gm2-Bu1oQrJXJrAhLUv1pF9m",
+      "sequence": 13,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "E-yavZa5EtQIKJ16XyQgOfjk",
+      "timestamp_ms": 1791211699709
+    },
+    {
+      "type": "external_started",
+      "event_id": "-dEPb3qMlos5b75j8fskasH1",
+      "sequence": 14,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699712
+    },
+    {
+      "type": "external_finished",
+      "event_id": "Ey4ECHroDZOguYbQtJBesp4M",
+      "sequence": 15,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699720
+    },
+    {
+      "type": "step_completed",
+      "event_id": "0xSVu0MKaTCLYavVHB4gFTrI",
+      "sequence": 16,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "TiPIyw0_XEAXgjj1THGHq50Q",
+      "timestamp_ms": 1791211699724
+    },
+    {
+      "type": "external_started",
+      "event_id": "pb3ca8GLgZvBbXLeWFXIPS0h",
+      "sequence": 17,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699727
+    },
+    {
+      "type": "external_finished",
+      "event_id": "mkOlxIakkBxVihKvsdlH7Qn5",
+      "sequence": 18,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699731
+    },
+    {
+      "type": "step_completed",
+      "event_id": "svJ6YE8vMpwvMjKmT3I4R9GI",
+      "sequence": 19,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "r4tpqF-_SK3lYmD41fMAJymG",
+      "timestamp_ms": 1791211699734
+    },
+    {
+      "type": "external_started",
+      "event_id": "EF32lLF_pj4hmi7ImrMmGF-B",
+      "sequence": 20,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699737
+    },
+    {
+      "type": "external_finished",
+      "event_id": "mHaYZ5HoJCyorx_n573ttsmG",
+      "sequence": 21,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699741
+    },
+    {
+      "type": "step_completed",
+      "event_id": "UtxvmxsPRQz-h7L2hBDrRJkN",
+      "sequence": 22,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "X8KbzSa7sfrotlc0LEczCUhR",
+      "timestamp_ms": 1791211699749
+    },
+    {
+      "type": "external_started",
+      "event_id": "xeqJ7aWyxz7pZy1CToDUo6H3",
+      "sequence": 23,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699753
+    },
+    {
+      "type": "external_finished",
+      "event_id": "EKo7zOFVlrA-HZ0AgYfyAlit",
+      "sequence": 24,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699756
+    },
+    {
+      "type": "step_completed",
+      "event_id": "IKS2Ufozq9KZ8SrPuimUUg6v",
+      "sequence": 25,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "Mj6xwj8Z7ZWz1IAm-2YAomYm",
+      "timestamp_ms": 1791211699758
+    },
+    {
+      "type": "external_started",
+      "event_id": "DFqcPyGClK1wjYZzxMSQH17Q",
+      "sequence": 26,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699760
+    },
+    {
+      "type": "external_finished",
+      "event_id": "GpkEC2vTF0WBILbEINncDPNg",
+      "sequence": 27,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211699762
+    },
+    {
+      "type": "step_completed",
+      "event_id": "WAXbToBbXusA0VG0a3qqQ3BK",
+      "sequence": 28,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "Z7dcB_xGgMO4Db4WZiaA297B",
+      "timestamp_ms": 1791211699764
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "ddWU67P8b1m9YzbzLBieMj8J",
+      "sequence": 29,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 1,
+      "timestamp_ms": 1791211699766
+    },
+    {
+      "type": "external_started",
+      "event_id": "UrF1XNdGJ24A_gCwH9u27yxU",
+      "sequence": 30,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211699767
+    },
+    {
+      "type": "external_finished",
+      "event_id": "lUPFZYS4bIqZ7x6t4WpaK5jQ",
+      "sequence": 31,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211727619
+    },
+    {
+      "type": "model_response",
+      "event_id": "AsvoBKos6mn-mpW-fR24POYn",
+      "sequence": 32,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 1,
+      "timestamp_ms": 1791211727633,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": null,
+      "usage": null,
+      "outcome": "error",
+      "interaction_kind": "role",
+      "error_code": "invalid_output",
+      "retryable": true
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "tnXb-7bqm7bQ9tzP981kHDiP",
+      "sequence": 33,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "turn": 1,
+      "timestamp_ms": 1791211727664
+    },
+    {
+      "type": "external_started",
+      "event_id": "wHQmorCUYP97IArQeIxDXXuQ",
+      "sequence": 34,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211727667
+    },
+    {
+      "type": "external_finished",
+      "event_id": "lEp-J3yZcER9UuT5ZKnvtteQ",
+      "sequence": 35,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211750891
+    },
+    {
+      "type": "model_response",
+      "event_id": "Z-vt4pPIjNlpKfPCiP3xKFWT",
+      "sequence": 36,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "turn": 1,
+      "timestamp_ms": 1791211750910,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 405,
+        "prompt_tokens": 17873,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 18278
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "gloN5hvkrPMxWw35U3LREB7m",
+      "sequence": 37,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "xX2atLxyJymbeD2jBQazylWh",
+      "timestamp_ms": 1791211750917
+    },
+    {
+      "type": "completed",
+      "event_id": "GvF7gsMKwI9IC5G3OCINCOsM",
+      "sequence": 38,
+      "service_id": "course.research",
+      "task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211750923
+    },
+    {
+      "type": "child_finished",
+      "event_id": "qWYraJvRmzBItbXxD7RSVicm",
+      "sequence": 39,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "yq_Ll_7A_OPXokEqs7_rO9lP",
+      "timestamp_ms": 1791211750926
+    },
+    {
+      "type": "running",
+      "event_id": "AE0fZzawcooVyFFsTWIm3mtV",
+      "sequence": 40,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 2,
+      "timestamp_ms": 1791211750929
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "Z2Ks47lr2YRnJZKOt8aQjNA_",
+      "sequence": 41,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211750936
+    },
+    {
+      "type": "running",
+      "event_id": "-xeefiiZSxuLIvjkTzx0074k",
+      "sequence": 42,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211750939
+    },
+    {
+      "type": "queued",
+      "event_id": "xV_sCVhJ0NH_cPT6WNhne0aB",
+      "sequence": 43,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211750943
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "sWHM6MJ-HinWdfzrmwA-yogU",
+      "sequence": 44,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211750946
+    },
+    {
+      "type": "running",
+      "event_id": "NAOa59GKdVNLznHlRnQSYQWM",
+      "sequence": 45,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "timestamp_ms": 1791211750948
+    },
+    {
+      "type": "waiting_for_human",
+      "event_id": "bKIMK1zh3jgT1QU6u8X3MwD2",
+      "sequence": 46,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211750951
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "cao4XglRET-amfDTJkUFMUI4",
+      "sequence": 47,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "timestamp_ms": 1791211750961
+    },
+    {
+      "type": "recovered",
+      "event_id": "GL4mpwj2O5OSBgBQr0MzGB_2",
+      "sequence": 48,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211754684
+    },
+    {
+      "type": "running",
+      "event_id": "pXoaYgEnCTpcXx_hp4h8aLFu",
+      "sequence": 49,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 4,
+      "timestamp_ms": 1791211754686
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "7iaTJ5bt5vNHraWjskQ1_q3V",
+      "sequence": 50,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "timestamp_ms": 1791211754692
+    },
+    {
+      "type": "resumed",
+      "event_id": "ha--j4Ie8m5B4w4ZT2of4jSj",
+      "sequence": 51,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211784743
+    },
+    {
+      "type": "running",
+      "event_id": "lCLpqdQXMN6B0OvPxYjT8Yv_",
+      "sequence": 52,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "timestamp_ms": 1791211784747
+    },
+    {
+      "type": "waiting_for_human",
+      "event_id": "5cl6Qi3izjwYMb9CkkhLGbRY",
+      "sequence": 53,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211784751
+    },
+    {
+      "type": "resumed",
+      "event_id": "Xpi4AZy8mK7YGYo5t1db1J1i",
+      "sequence": 54,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211786788
+    },
+    {
+      "type": "running",
+      "event_id": "sc5Y8PvVwbeFWRakb7dlo_CK",
+      "sequence": 55,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 3,
+      "timestamp_ms": 1791211786793
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "YH32Ef6mWbzW8NURGDNgDR6v",
+      "sequence": 56,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211786798
+    },
+    {
+      "type": "external_started",
+      "event_id": "F86kzzGOaAPllmMuk77VVhAx",
+      "sequence": 57,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791211786801
+    },
+    {
+      "type": "external_finished",
+      "event_id": "xJMOdEP08ZZgrpoBq79eme5-",
+      "sequence": 58,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211812598
+    },
+    {
+      "type": "model_response",
+      "event_id": "taIIz5jNa-Avesy721gU7YxQ",
+      "sequence": 59,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211812616,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 452,
+        "prompt_tokens": 17405,
+        "reasoning_output_tokens": 83,
+        "total_tokens": 17857
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "lRX0Cg5erHN9RlJe7wf2PMyw",
+      "sequence": 60,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 3,
+      "artifact_id": "mjE07Jl7NtDYqtDq3Uskql6J",
+      "timestamp_ms": 1791211812621
+    },
+    {
+      "type": "completed",
+      "event_id": "6kvgcJxY5BkNU305qAhc8Ggo",
+      "sequence": 61,
+      "service_id": "course.plan",
+      "task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211812625
+    },
+    {
+      "type": "child_finished",
+      "event_id": "VQsrNoUImGbIKAPDc_I4C5_b",
+      "sequence": 62,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "QOKHnS9ewYKFby66PivNQ6lo",
+      "timestamp_ms": 1791211812627
+    },
+    {
+      "type": "running",
+      "event_id": "QEZDX2j56xUFv4j9MFjiQU5k",
+      "sequence": 63,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 5,
+      "timestamp_ms": 1791211812629
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "I24T1Goc7ls5mflkROeXcvcW",
+      "sequence": 64,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211812635
+    },
+    {
+      "type": "running",
+      "event_id": "ReCkMlOCSWndTOs5ceFQ6Ur4",
+      "sequence": 65,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211812637
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "eO0X7-2JBLGlecI3wkJz8LZz",
+      "sequence": 66,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211812639
+    },
+    {
+      "type": "running",
+      "event_id": "ea3cymjmkZ8JXscFiLy7zysN",
+      "sequence": 67,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211812641
+    },
+    {
+      "type": "queued",
+      "event_id": "_YY67DNzPz1EJ-o6oWpRuSMh",
+      "sequence": 68,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211812644
+    },
+    {
+      "type": "queued",
+      "event_id": "rO-ToaGOprolXRfLCeiSNImx",
+      "sequence": 69,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211812647
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "Ln-uAm7Ys3mqv4guSw1MbaV9",
+      "sequence": 70,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211812652
+    },
+    {
+      "type": "running",
+      "event_id": "c7x78QOiRp4mRnI7mRvMTKyk",
+      "sequence": 71,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "timestamp_ms": 1791211812655
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "gxd7Mchy8oKUlOEtV0RsbQ0R",
+      "sequence": 72,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791211812656
+    },
+    {
+      "type": "running",
+      "event_id": "9ad-oZ24Q5XpDjFc9_xbtH7r",
+      "sequence": 73,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "timestamp_ms": 1791211812658
+    },
+    {
+      "type": "queued",
+      "event_id": "X5PRxAEfrFo5oehBFgMmktZi",
+      "sequence": 74,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211812661
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "dXtGJ3TC3ZO3FfYMd99e7g3s",
+      "sequence": 75,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211812663
+    },
+    {
+      "type": "running",
+      "event_id": "T_95GW905ovKthIp8iM1Nt6y",
+      "sequence": 76,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "timestamp_ms": 1791211812665
+    },
+    {
+      "type": "queued",
+      "event_id": "v7-roV5tr5RkwlkT37ebUXnj",
+      "sequence": 77,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211812667
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "hlimNcYLZQM0PECXDRcF8n60",
+      "sequence": 78,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211812670
+    },
+    {
+      "type": "running",
+      "event_id": "7z0L8HcuOU9GswpSiwCcHXEt",
+      "sequence": 79,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "timestamp_ms": 1791211812672
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "MMPkCJP9eMdg8akTCBmguy9A",
+      "sequence": 80,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211812675
+    },
+    {
+      "type": "external_started",
+      "event_id": "ovT7XG3eAdGZ8YkBpUVBSpCb",
+      "sequence": 81,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 1,
+      "timestamp_ms": 1791211812676
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "LjZq8WG6uGIEOzPCWHWCgtTD",
+      "sequence": 82,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211812678
+    },
+    {
+      "type": "external_started",
+      "event_id": "3t1WUqIi2DrHMnX-poiIBNGo",
+      "sequence": 83,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211812680
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "0V_o7f9cHlIqzc6AbZrERvkt",
+      "sequence": 84,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211812760
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "ISeyY9k2ytXkPDOml5T96zmj",
+      "sequence": 85,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211812764
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "TiGUleVZUlGGa6Qz6shsx0aa",
+      "sequence": 86,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "child_task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "timestamp_ms": 1791211812765
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "YCe08DMXdyliJYZBygDlm9lE",
+      "sequence": 87,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "child_task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "timestamp_ms": 1791211812774
+    },
+    {
+      "type": "external_finished",
+      "event_id": "2SCobPrLvsvahdX6IAE1gNqi",
+      "sequence": 88,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830080
+    },
+    {
+      "type": "model_response",
+      "event_id": "jAZj1dI_4fcg_VqaejSFzNq_",
+      "sequence": 89,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211830096,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 226,
+        "prompt_tokens": 17300,
+        "reasoning_output_tokens": 11,
+        "total_tokens": 17526
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "external_started",
+      "event_id": "8_pVZzRN4G_kzhjOBaFFY-IO",
+      "sequence": 90,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830100
+    },
+    {
+      "type": "external_finished",
+      "event_id": "H09ljYaFUqWltAy81mUFt3k_",
+      "sequence": 91,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830109
+    },
+    {
+      "type": "step_completed",
+      "event_id": "onYJ9e1Bj1-bN-Q3yrea1RCG",
+      "sequence": 92,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "qsaotc5uuJvVVGrm59rYK2SX",
+      "timestamp_ms": 1791211830113
+    },
+    {
+      "type": "external_started",
+      "event_id": "oxPYEHfItyqpWmrOM0y7AdkE",
+      "sequence": 93,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830115
+    },
+    {
+      "type": "external_finished",
+      "event_id": "_otZpvkUMD8ItMjIzFfEa_W0",
+      "sequence": 94,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830118
+    },
+    {
+      "type": "step_completed",
+      "event_id": "YxLTipIAlDmC5cDsyp9BkNCB",
+      "sequence": 95,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "01BSe4aNP1_gIOYya-lj67wm",
+      "timestamp_ms": 1791211830120
+    },
+    {
+      "type": "external_started",
+      "event_id": "GfrK0B4cZr4WKq4zeTeM467Q",
+      "sequence": 96,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830123
+    },
+    {
+      "type": "external_finished",
+      "event_id": "RxwPXC24h4xAy7n5WOX9no4j",
+      "sequence": 97,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830126
+    },
+    {
+      "type": "step_completed",
+      "event_id": "35IrLwiAvzwOv0EFfTZMFMkl",
+      "sequence": 98,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "uAVBI4rZaGVDiIuDDFe8em5M",
+      "timestamp_ms": 1791211830130
+    },
+    {
+      "type": "external_started",
+      "event_id": "zS7ze8gl4hq3W_Sun4rD1sam",
+      "sequence": 99,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830132
+    },
+    {
+      "type": "external_finished",
+      "event_id": "VM-_fipbBrIM-Qp3ojp1sA-M",
+      "sequence": 100,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830136
+    },
+    {
+      "type": "step_completed",
+      "event_id": "TlQ7huKHzYiwN7Kkm2WBSixT",
+      "sequence": 101,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "UdTRqi6-ORsKBp4Hr8w1WBl6",
+      "timestamp_ms": 1791211830138
+    },
+    {
+      "type": "external_started",
+      "event_id": "VlGYYtKuZlKUKca6gsbN1obb",
+      "sequence": 102,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830140
+    },
+    {
+      "type": "external_finished",
+      "event_id": "SNf86jViK2HGEkPJ_HtfStvs",
+      "sequence": 103,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830143
+    },
+    {
+      "type": "step_completed",
+      "event_id": "XaH_wvLezN1yJ6aD3gEWqI0g",
+      "sequence": 104,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "qrWOspDo4DKVY7It29-2Grh1",
+      "timestamp_ms": 1791211830145
+    },
+    {
+      "type": "external_started",
+      "event_id": "4cFmtZ2JM0N-2v2mRiaeXzTQ",
+      "sequence": 105,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830147
+    },
+    {
+      "type": "external_finished",
+      "event_id": "kuqqne-hH8E1vW205YXs49Yt",
+      "sequence": 106,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211830152
+    },
+    {
+      "type": "step_completed",
+      "event_id": "I25smY8GlKlBhQDwaI5UWUUo",
+      "sequence": 107,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "-vV_Kk7tgObgb9nMH1vWg4Fm",
+      "timestamp_ms": 1791211830154
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "pIYKRSw9gzdO0nNaeQYsSf1b",
+      "sequence": 108,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "turn": 1,
+      "timestamp_ms": 1791211830156
+    },
+    {
+      "type": "external_started",
+      "event_id": "oqUPCCb_xEjkic-4-to0iWKd",
+      "sequence": 109,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211830158
+    },
+    {
+      "type": "external_finished",
+      "event_id": "l6J5O_QQNG8bz-aF7ZoEkt4L",
+      "sequence": 110,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845664
+    },
+    {
+      "type": "model_response",
+      "event_id": "DLvmbgK_r5OoEjGO53lsn37i",
+      "sequence": 111,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211845675,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 227,
+        "prompt_tokens": 17300,
+        "reasoning_output_tokens": 18,
+        "total_tokens": 17527
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "external_started",
+      "event_id": "pdBYHDSplO6oQbIWrAAIeNkq",
+      "sequence": 112,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845678
+    },
+    {
+      "type": "external_finished",
+      "event_id": "4RdUy9Kb-_0QbPQyGU1A57wv",
+      "sequence": 113,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845681
+    },
+    {
+      "type": "step_completed",
+      "event_id": "7Zxsiy73ZHIEYnF5KorrbVxn",
+      "sequence": 114,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "0DlpoD8cELgKrJMobOtI9f0h",
+      "timestamp_ms": 1791211845683
+    },
+    {
+      "type": "external_started",
+      "event_id": "6Msnq3AGt-md6KyJtUJ3-DV1",
+      "sequence": 115,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845685
+    },
+    {
+      "type": "external_finished",
+      "event_id": "nzBUfOIuevaUqoZCQ_r3CJ52",
+      "sequence": 116,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845687
+    },
+    {
+      "type": "step_completed",
+      "event_id": "To7KDhom7ITwTVrzwDLrwbPb",
+      "sequence": 117,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "VocvFRMAUGKBMotiremVTExD",
+      "timestamp_ms": 1791211845689
+    },
+    {
+      "type": "external_started",
+      "event_id": "v2pBfZeg9Nl_edzqTBHr_hCx",
+      "sequence": 118,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845691
+    },
+    {
+      "type": "external_finished",
+      "event_id": "9RtRsnZ2pCHbi05ePWYAViv_",
+      "sequence": 119,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845695
+    },
+    {
+      "type": "step_completed",
+      "event_id": "PfL0AaIUABHRl67BNBMGojLD",
+      "sequence": 120,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "RM91bgI7QKdcRHXXuHTsoQn0",
+      "timestamp_ms": 1791211845697
+    },
+    {
+      "type": "external_started",
+      "event_id": "VVgnC_RfrWKeNKmYpkG7UByK",
+      "sequence": 121,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845699
+    },
+    {
+      "type": "external_finished",
+      "event_id": "FAmVrXvfIA4YL2v8El1Cx9iG",
+      "sequence": 122,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845702
+    },
+    {
+      "type": "step_completed",
+      "event_id": "Cbqn-9msQefWiihmhdGv8OgR",
+      "sequence": 123,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "DvKYj32eW6i-HvrwsRIULkFp",
+      "timestamp_ms": 1791211845704
+    },
+    {
+      "type": "external_started",
+      "event_id": "yBnSfZ2BbTgfM1k_NZKLvHaM",
+      "sequence": 124,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845706
+    },
+    {
+      "type": "external_finished",
+      "event_id": "ORvB0uVbEeLAKTVCdES67La_",
+      "sequence": 125,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845710
+    },
+    {
+      "type": "step_completed",
+      "event_id": "XwitB1ZeNYZ_wkBusoZ3s8UO",
+      "sequence": 126,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "huWY3XA_XaCQW41sCC6AXbCA",
+      "timestamp_ms": 1791211845711
+    },
+    {
+      "type": "external_started",
+      "event_id": "pRoHXAQ0SX3QLQZ3NgcTl1Qv",
+      "sequence": 127,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845713
+    },
+    {
+      "type": "external_finished",
+      "event_id": "KEyAN3-HKeIYr42SbVR0ow5p",
+      "sequence": 128,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211845716
+    },
+    {
+      "type": "step_completed",
+      "event_id": "cL_xPJt0M1K3lE83JVtNVK_h",
+      "sequence": 129,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "qBkF7o-TIxjSSa7c6OKGRga0",
+      "timestamp_ms": 1791211845718
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "gMRaVmu4MLlhqwcdyxeybfGP",
+      "sequence": 130,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "turn": 1,
+      "timestamp_ms": 1791211845720
+    },
+    {
+      "type": "external_started",
+      "event_id": "l0jE2OLpx0E-fo326oVa1sBq",
+      "sequence": 131,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211845722
+    },
+    {
+      "type": "external_finished",
+      "event_id": "AK3Unq0SeCwcnuwUF-oVe6SC",
+      "sequence": 132,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211874078
+    },
+    {
+      "type": "model_response",
+      "event_id": "rg2nTmgCq84-5TwLJvYMWZe-",
+      "sequence": 133,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "turn": 1,
+      "timestamp_ms": 1791211874089,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": null,
+      "usage": null,
+      "outcome": "error",
+      "interaction_kind": "role",
+      "error_code": "invalid_output",
+      "retryable": true
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "53TRoI0WKX9f-8qHt3KuGdw3",
+      "sequence": 134,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 2,
+      "turn": 1,
+      "timestamp_ms": 1791211874122
+    },
+    {
+      "type": "external_started",
+      "event_id": "09XGxRQMdMHZLBZRHdhqcuQb",
+      "sequence": 135,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "active_count": 2,
+      "timestamp_ms": 1791211874128
+    },
+    {
+      "type": "external_finished",
+      "event_id": "l0GorgHVCivAufOET14RGWx3",
+      "sequence": 136,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211902141
+    },
+    {
+      "type": "model_response",
+      "event_id": "2bDjs5_hAEDntBOPC8kVMIHI",
+      "sequence": 137,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "turn": 1,
+      "timestamp_ms": 1791211902158,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": null,
+      "usage": null,
+      "outcome": "error",
+      "interaction_kind": "role",
+      "error_code": "invalid_output",
+      "retryable": true
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "DEfpr9RRie6fJko_4j3CfDk-",
+      "sequence": 138,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 2,
+      "turn": 1,
+      "timestamp_ms": 1791211902188
+    },
+    {
+      "type": "external_started",
+      "event_id": "JTUU1-NFH2xHULOUfDOSgWaJ",
+      "sequence": 139,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "active_count": 2,
+      "timestamp_ms": 1791211902195
+    },
+    {
+      "type": "external_finished",
+      "event_id": "xEBZ_JMBFlY3k0KNttFu9LAf",
+      "sequence": 140,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211924995
+    },
+    {
+      "type": "model_response",
+      "event_id": "qKolWhXxZCv6q-G-22p1BLkD",
+      "sequence": 141,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 2,
+      "turn": 1,
+      "timestamp_ms": 1791211925018,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 405,
+        "prompt_tokens": 17873,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 18278
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "fl6JQloyxD0dDxjSH_MTkum4",
+      "sequence": 142,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "attempt": 1,
+      "artifact_id": "3twQJX7PFpON_6M5oGd7gUqk",
+      "timestamp_ms": 1791211925022
+    },
+    {
+      "type": "completed",
+      "event_id": "yB7O5evEsBWfZsezfjKqxOAr",
+      "sequence": 143,
+      "service_id": "course.research",
+      "task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "parent_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "timestamp_ms": 1791211925030
+    },
+    {
+      "type": "child_finished",
+      "event_id": "GP5UP6TrUXbk-nsHTVC6_qeT",
+      "sequence": 144,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "child_task_id": "-ocyBXA0j1AT4LUS-cdf8w-l",
+      "timestamp_ms": 1791211925033
+    },
+    {
+      "type": "running",
+      "event_id": "7SqQoUyzEKk2-h38WY9rGxcI",
+      "sequence": 145,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "timestamp_ms": 1791211925038
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "ri4qK2UJXxqiIWsOBj5VXKiw",
+      "sequence": 146,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211925049
+    },
+    {
+      "type": "running",
+      "event_id": "NirYlkBzKpb6K7HuqcBNEvM1",
+      "sequence": 147,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211925055
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "VNRsIfBj-Ke4KX-JeT4vKg0O",
+      "sequence": 148,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211925072
+    },
+    {
+      "type": "external_started",
+      "event_id": "bOw9FLcF2lP1j44OhF2XY9rx",
+      "sequence": 149,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 2,
+      "timestamp_ms": 1791211925080
+    },
+    {
+      "type": "external_finished",
+      "event_id": "YXgrowDVBurEa2hjkAuujbHd",
+      "sequence": 150,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211949823
+    },
+    {
+      "type": "model_response",
+      "event_id": "_dP97NM2x-u91Iqrhy_9IrHy",
+      "sequence": 151,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 2,
+      "turn": 1,
+      "timestamp_ms": 1791211949837,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 405,
+        "prompt_tokens": 17873,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 18278
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "EBxnziDWS5UGB_yZwHN7QrCI",
+      "sequence": 152,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "attempt": 1,
+      "artifact_id": "4RO-aZMjrK03TkDDoqNts9kC",
+      "timestamp_ms": 1791211949844
+    },
+    {
+      "type": "completed",
+      "event_id": "lZs9n1gmOiiFKfbhFRJT4Kwa",
+      "sequence": 153,
+      "service_id": "course.research",
+      "task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "parent_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791211949850
+    },
+    {
+      "type": "child_finished",
+      "event_id": "dm7UFXzXemINkFXunVGjv2wS",
+      "sequence": 154,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "child_task_id": "YitngXeHzUIxHy91rv6Jzg8U",
+      "timestamp_ms": 1791211949855
+    },
+    {
+      "type": "running",
+      "event_id": "DHU2RGPeGt5m8AhvAHWlV1-o",
+      "sequence": 155,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "timestamp_ms": 1791211949860
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "d90YUJq7SCus6cCkfyPEj1fM",
+      "sequence": 156,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211949871
+    },
+    {
+      "type": "running",
+      "event_id": "NMULWEcB3CrEktJ2_ntfn_-g",
+      "sequence": 157,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211949883
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "RadTkj9-C60EDKhZjEAMpzST",
+      "sequence": 158,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211949886
+    },
+    {
+      "type": "external_started",
+      "event_id": "oogKjAFczCBCwhd1XmR5sSLh",
+      "sequence": 159,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 2,
+      "timestamp_ms": 1791211949890
+    },
+    {
+      "type": "external_finished",
+      "event_id": "n-dyNQEf_yTO_1hItf0_6fIL",
+      "sequence": 160,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211997310
+    },
+    {
+      "type": "model_response",
+      "event_id": "PPHXALctSwqK633Kw_KS23Sd",
+      "sequence": 161,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791211997319,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 1048,
+        "prompt_tokens": 18070,
+        "reasoning_output_tokens": 48,
+        "total_tokens": 19118
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "FV1R5pegokaQ1VO_c_U8Kofy",
+      "sequence": 162,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "artifact_id": "rK8Zgkm6dEAMiDGq80uFKZuQ",
+      "timestamp_ms": 1791211997325
+    },
+    {
+      "type": "completed",
+      "event_id": "pdbv172Z8Mlg9yMQyhfuInP2",
+      "sequence": 163,
+      "service_id": "course.author",
+      "task_id": "IlInOx_BmKKN-02fWnJPCnI1",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791211997331
+    },
+    {
+      "type": "external_finished",
+      "event_id": "4cBRVVvLxTAnHW5NPk3Bwld1",
+      "sequence": 164,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212039897
+    },
+    {
+      "type": "external_finished",
+      "event_id": "qwUwoh9IeA3aCRkJQIom_by9",
+      "sequence": 165,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212039923
+    },
+    {
+      "type": "model_response",
+      "event_id": "FIfnazqDCmY3WOnC2M9ykgbY",
+      "sequence": 166,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791212039927,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": null,
+      "usage": null,
+      "outcome": "error",
+      "interaction_kind": "role",
+      "error_code": "timeout",
+      "retryable": true
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "c7JGROYXQEYKHbAmCR82NEIq",
+      "sequence": 167,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "turn": 0,
+      "timestamp_ms": 1791212039957
+    },
+    {
+      "type": "external_started",
+      "event_id": "2GrOPXRciLBz8mDEJXG5atkd",
+      "sequence": 168,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791212039960
+    },
+    {
+      "type": "external_finished",
+      "event_id": "jW29SagvD9_qp0xXSGNZl1MI",
+      "sequence": 169,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212095887
+    },
+    {
+      "type": "model_response",
+      "event_id": "f14Nwdp6Yq9lJ81mNYkO6861",
+      "sequence": 170,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "turn": 0,
+      "timestamp_ms": 1791212095906,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 1114,
+        "prompt_tokens": 18070,
+        "reasoning_output_tokens": 56,
+        "total_tokens": 19184
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "bAh-URYbpO3iv4QU5rNQWLCc",
+      "sequence": 171,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 2,
+      "artifact_id": "8lIFS8xPON2TnpoWJYJPNBYS",
+      "timestamp_ms": 1791212095912
+    },
+    {
+      "type": "completed",
+      "event_id": "b9DeEHobDIKsxlxiz-AhxYJv",
+      "sequence": 172,
+      "service_id": "course.author",
+      "task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212095919
+    },
+    {
+      "type": "child_finished",
+      "event_id": "ggMc2uyT7YeZxf1cPF9Kpdru",
+      "sequence": 173,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "fREqTcv5pyc-HImjZ-vdtsgM",
+      "timestamp_ms": 1791212095922
+    },
+    {
+      "type": "running",
+      "event_id": "PYQV5xGaRAuJT7Xfv63JDnpd",
+      "sequence": 174,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 6,
+      "timestamp_ms": 1791212095926
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "Lv-zll2ql9pMXzEGFOm4hr4m",
+      "sequence": 175,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095934
+    },
+    {
+      "type": "running",
+      "event_id": "15M998cYkWQLsSsON06oeeZx",
+      "sequence": 176,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095937
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "AkGKkHgWF1slvN7V2IJ74jQJ",
+      "sequence": 177,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095941
+    },
+    {
+      "type": "running",
+      "event_id": "jh7mi-wnnb1QV20OWbouyqqN",
+      "sequence": 178,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095945
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "wvrFyIaQWJCqovEjeWP1MzKQ",
+      "sequence": 179,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095952
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "IZ0DRbAsby2ZuqF1uC-_U75L",
+      "sequence": 180,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095955
+    },
+    {
+      "type": "running",
+      "event_id": "58RLOlodwa9iKzhUTjbiIGE6",
+      "sequence": 181,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095964
+    },
+    {
+      "type": "running",
+      "event_id": "X1syAA1GaAQtRVZbYUwfj-0R",
+      "sequence": 182,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095968
+    },
+    {
+      "type": "step_completed",
+      "event_id": "PVM-MQRE_QehI3X51ATOKm51",
+      "sequence": 183,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 6,
+      "artifact_id": "hNFZ3fVmFWq5NMGWkx58zoYA",
+      "timestamp_ms": 1791212095969
+    },
+    {
+      "type": "step_completed",
+      "event_id": "FT7Cn4NiXsHXSRQ0iYOAmQGN",
+      "sequence": 184,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 6,
+      "artifact_id": "1cKTkv9rUU8JDuNH0F4X-ypD",
+      "timestamp_ms": 1791212095973
+    },
+    {
+      "type": "queued",
+      "event_id": "bY5vG2U3F-8z09bPCLzilqNn",
+      "sequence": 185,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212095976
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "Wt84BUx-v_eQ8PoAKGMj53r8",
+      "sequence": 186,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212095978
+    },
+    {
+      "type": "running",
+      "event_id": "pqdce2Uw_elcYAKGIo4JAWFY",
+      "sequence": 187,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "timestamp_ms": 1791212095979
+    },
+    {
+      "type": "provider_reserved",
+      "event_id": "ZtR53iRbsDB4hzyNatYlKmY6",
+      "sequence": 188,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791212095981
+    },
+    {
+      "type": "external_started",
+      "event_id": "aZcFQmCnC8zww9q3YiUyQ5m0",
+      "sequence": 189,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "active_count": 1,
+      "timestamp_ms": 1791212095984
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "3Nv4PkZ-dS-mnLX90TTG6A0N",
+      "sequence": 190,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "timestamp_ms": 1791212096088
+    },
+    {
+      "type": "external_finished",
+      "event_id": "TqOrAscnni2Yw-NbkgzAxB5D",
+      "sequence": 191,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212108184
+    },
+    {
+      "type": "model_response",
+      "event_id": "UKcXF7b30yPuT3iTBgdIq5R2",
+      "sequence": 192,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "turn": 0,
+      "timestamp_ms": 1791212108198,
+      "model": "gpt-6.1-sol",
+      "settings": {
+        "model": "gpt-6.1-sol",
+        "profile": "codex_local",
+        "reasoning_effort": "medium",
+        "timeout_ms": 90000,
+        "tool_timeout_ms": 5000
+      },
+      "reasoning_effort": "medium",
+      "usage": {
+        "cached_input_tokens": 0,
+        "completion_tokens": 55,
+        "prompt_tokens": 19610,
+        "reasoning_output_tokens": 20,
+        "total_tokens": 19665
+      },
+      "outcome": "ok",
+      "interaction_kind": "role"
+    },
+    {
+      "type": "step_completed",
+      "event_id": "Bm4GraRiZNXse9uzRdyHvln8",
+      "sequence": 193,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "attempt": 1,
+      "artifact_id": "-w9RKQV07TAzv_YaQH6bJDTs",
+      "timestamp_ms": 1791212108203
+    },
+    {
+      "type": "completed",
+      "event_id": "E06tT7-Qe-baWTXGu2o_Nl2r",
+      "sequence": 194,
+      "service_id": "course.review",
+      "task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "parent_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "timestamp_ms": 1791212108211
+    },
+    {
+      "type": "child_finished",
+      "event_id": "lO53YdOav2kR3s5bcBZpdYEO",
+      "sequence": 195,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "child_task_id": "oKMdOJaf_KzXUVRl1vFZwyaY",
+      "timestamp_ms": 1791212108216
+    },
+    {
+      "type": "running",
+      "event_id": "ZJpNF942RRZbJMb6Lwb125RR",
+      "sequence": 196,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "attempt": 7,
+      "timestamp_ms": 1791212108225
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "J2zPEuNbYhZcCsnKizWAwtje",
+      "sequence": 197,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108234
+    },
+    {
+      "type": "running",
+      "event_id": "fnXE0yrJziKhsFYy2ifo-IXl",
+      "sequence": 198,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108237
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "BhGvG9S-2WM4TjWgDp5TEXeL",
+      "sequence": 199,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108242
+    },
+    {
+      "type": "running",
+      "event_id": "mJwJ2lcM8rFY1rsUZSkXcb8u",
+      "sequence": 200,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108244
+    },
+    {
+      "type": "waiting_for_children",
+      "event_id": "UfYiV7DqpMKwS_IlZ4XI7eRN",
+      "sequence": 201,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108248
+    },
+    {
+      "type": "running",
+      "event_id": "KgsnpJoKQ0XD-cIZbfbQ6-hz",
+      "sequence": 202,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108250
+    },
+    {
+      "type": "completed",
+      "event_id": "IW4pbVnW7KN_yUtl05P1o_Pu",
+      "sequence": 203,
+      "service_id": "course.create",
+      "task_id": "m5G-nW8kld_w-YF8hsYHeIhe",
+      "parent_id": null,
+      "timestamp_ms": 1791212108254
+    }
+  ],
+  "course_sha256": "e5149652773b7ade10f8de80d5d676ea337a82f9de2c02e73f1137196dbb8fa6"
+}

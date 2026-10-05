@@ -25,5 +25,5 @@ Application.put_env(:rutvi_exercise, :codex_gateway_token, token)
     transport_options: [num_acceptors: 8, max_connections: 16]
   )
 
-IO.puts("Codex gateway listening on 127.0.0.1:#{port}; model=gpt-6-luna; reasoning=low")
+IO.puts("Codex gateway listening on 127.0.0.1:#{port}; model=gpt-6.1-sol; reasoning=medium")
 Process.sleep(:infinity)

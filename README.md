@@ -6,7 +6,7 @@ The repository includes an offline deterministic adapter and real AI through an 
 
 - [Assignment (PDF)](docs/spec/assignment.pdf) · [Searchable text](docs/spec/assignment.txt)
 - [HTTP API](docs/api.md) · [Local Kubernetes](docs/kubernetes.md)
-- [Architecture and limitations](docs/implementation-plan.md) · [Latest verification](docs/verification-2026-10-05.md)
+- [Architecture and limitations](docs/implementation-plan.md) · [Latest verification](docs/verification-2026-10-05-sol.md)
 
 ## Prerequisites
 
@@ -36,18 +36,18 @@ Studio demo mode gives visitors a server-assigned demo identity; it has no publi
 
 ## Run with real AI
 
-Install and authenticate the Codex CLI on the host. The recorded successful run used CLI `0.158.0`, model `gpt-6-luna`, and low reasoning. Your account must have access to that model. See [provider details and recorded verification](docs/local-codex.md).
+Install and authenticate the Codex CLI on the host. The tested version is **0.160.0**; the local adapters select **`gpt-6.1-sol` with medium reasoning**. Your account must have access to that model. See [provider details and recorded verification](docs/local-codex.md).
 
 ```sh
 codex --version
 codex login status
 RUTVI_MODEL_PROVIDER=codex RUTVI_MODEL_PROFILE=codex_local \
-  RUTVI_STUDIO_DEMO=true mix run --no-halt
+  SYNAPTIC_CODEX_BIN="$(command -v codex)" RUTVI_STUDIO_DEMO=true mix run --no-halt
 ```
 
 Open the same Studio URL and create a course. The `codex_local` profile allows 90 seconds per model request; the default strict profile allows 10 seconds and is usually too short for this local CLI flow. Real generation consumes account usage and can take several minutes, plus time waiting for checkpoint input. Errors are surfaced; the app never silently substitutes offline output.
 
-The app runs the CLI in a temporary directory with read-only execution and low reasoning. Keep account credentials on the host. Containers contain neither the CLI nor credentials. For real AI in Kubernetes, use the authenticated host gateway described in [Local Kubernetes](docs/kubernetes.md).
+The app runs the CLI in a temporary directory with read-only execution and medium reasoning. Keep account credentials on the host. Containers contain neither the CLI nor credentials. For real AI in Kubernetes, use the authenticated host gateway described in [Local Kubernetes](docs/kubernetes.md).
 
 ## Test and verify
 
@@ -74,7 +74,7 @@ Manual acceptance:
 4. Run a real-AI course separately and inspect its output and model history.
 5. Follow the Kubernetes recipe to verify pod replacement against the same PVC.
 
-The [5 October verification](docs/verification-2026-10-05.md) records passing automated checks and a completed real-Luna course with Kubernetes checkpoint recovery. Its [sample course and redacted trace](docs/evidence/README.md) contain the actual run timestamps and reported usage. Earlier [acceptance records](docs/acceptance.md) remain available. Recorded results do not replace a fresh run on another machine.
+The [5 October verification](docs/verification-2026-10-05-sol.md) records passing automated checks and a completed real-Sol course at medium reasoning with Kubernetes checkpoint recovery. Its [sample course and redacted trace](docs/evidence/README.md) contain the actual run timestamps and reported usage. Earlier [acceptance records](docs/acceptance.md) remain available. Recorded results do not replace a fresh run on another machine.
 
 ## Docker Compose: offline Studio
 

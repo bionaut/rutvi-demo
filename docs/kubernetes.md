@@ -11,6 +11,7 @@ if [ ! -f "$HOME/.config/rutvi-exercise/codex-gateway.token" ]; then
 fi
 chmod 600 "$HOME/.config/rutvi-exercise/codex-gateway.token"
 RUTVI_CODEX_GATEWAY_TOKEN_FILE="$HOME/.config/rutvi-exercise/codex-gateway.token" \
+SYNAPTIC_CODEX_BIN="$(command -v codex)" \
 RUTVI_CODEX_GATEWAY_BIND=127.0.0.1 RUTVI_CODEX_GATEWAY_PORT=4041 \
 MIX_ENV=dev mix run --no-start scripts/start-codex-gateway.exs
 ```
@@ -44,4 +45,4 @@ kubectl --kubeconfig "$KUBECONFIG" --context "$KUBE_CONTEXT" delete namespace ru
 
 To retire the local cluster too, run `kind delete cluster --name rutvi`. Keep the host gateway process separate; stop only the terminal that started it.
 
-Every Kubernetes script requires `KUBE_CONTEXT` explicitly, accepts only a local `kind-*`, `k3d-*`, or `minikube` context, and rejects the known `engeto-prod-v2` context. The scripts never rely on kubectl's current/default context. The local Kind demo is served at `http://127.0.0.1:4018/`; its browser Studio, health probes, signed session, real-Luna course, checkpoint resume, and JSON download were verified. It reaches the host gateway at `127.0.0.1:4041` through Docker Desktop's `host.docker.internal`; the gateway binds only to host loopback and needs its own authenticated Codex CLI. The local test token map, stable Studio secret, and gateway token are private files under `$HOME/.config/rutvi-exercise/` with mode `0600`; values are not included here. Use your own files outside source control on another machine. See [acceptance status](acceptance.md) for exact evidence and the BEAM open-file-limit wrapper.
+Every Kubernetes script requires `KUBE_CONTEXT` explicitly, accepts only a local `kind-*`, `k3d-*`, or `minikube` context, and rejects the known `engeto-prod-v2` context. The scripts never rely on kubectl's current/default context. The local Kind demo is served at `http://127.0.0.1:4018/`; its browser Studio uses `gpt-6.1-sol` with medium reasoning through the host gateway. It reaches the host gateway at `127.0.0.1:4041` through Docker Desktop's `host.docker.internal`; the gateway binds only to host loopback and needs its own authenticated Codex CLI. The local test token map, stable Studio secret, and gateway token are private files under `$HOME/.config/rutvi-exercise/` with mode `0600`; values are not included here. Use your own files outside source control on another machine. See the [latest verification](verification-2026-10-05-sol.md) for exact current evidence and the [earlier acceptance record](acceptance.md) for the BEAM open-file-limit wrapper.

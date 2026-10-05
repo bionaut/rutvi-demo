@@ -20,7 +20,7 @@ data:
   RUTVI_DATABASE: /data/rutvi.sqlite3
   RUTVI_MODEL_PROVIDER: remote_codex
   RUTVI_MODEL_PROFILE: codex_local
-  RUTVI_MODEL: gpt-6-luna
+  RUTVI_MODEL: gpt-6.1-sol
   RUTVI_CODEX_GATEWAY_URL: http://host.docker.internal:4041
   COURSE_SERVICE_ID: course.create
   RUTVI_STUDIO_DEMO: "true"

@@ -2,7 +2,9 @@
 
 For current startup commands, see the [README](../README.md#run-with-real-ai) and [Kubernetes guide](kubernetes.md). Probe results below are historical evidence; references to the €5 ceiling describe the older assignment.
 
-`RutviExercise.Models.Codex` calls the vendored `Synaptic.Tools.CodexExec` adapter. It does not call an OpenAI API adapter, read API credentials, or silently switch providers. Runtime settings are fixed to model `gpt-6-luna` and reasoning effort `low`; failures return structured errors.
+`RutviExercise.Models.Codex` calls the vendored `Synaptic.Tools.CodexExec` adapter. It does not call an OpenAI API adapter, read API credentials, or silently switch providers. Runtime settings are fixed to model `gpt-6.1-sol` and reasoning effort `medium`; failures return structured errors. The remote adapter also checks the returned model and effort and rejects any drift.
+
+Use the tested Codex CLI **0.160.0** for this model. A real structured-output probe succeeded with `gpt-6.1-sol` and medium reasoning after updating from 0.158.0, whose probe was rejected. Select the installed CLI explicitly with `SYNAPTIC_CODEX_BIN="$(command -v codex)"` if the framework would otherwise select a different executable.
 
 Each call runs `codex exec` as a noninteractive, ephemeral local subprocess with approval set to `never`, the read-only sandbox, and a 30-second default timeout capped at 120 seconds. The adapter uses a dedicated temporary scratch directory as the process working directory, writes the supplied JSON Schema there for `--output-schema`, and removes that temporary schema after the call. It does not add the application repository as a writable directory. The caller must provide only the prompt/messages and facts permitted for that model request.
 
@@ -25,11 +27,11 @@ RutviExercise.Models.Codex.generate(
 )
 ```
 
-A plain `prompt` string can replace `messages`. Success has the shape `{:ok, %{output: map, model: "gpt-6-luna", reasoning_effort: "low", usage: map | nil}}`. Errors have `{:error, %{code: atom, message: string, retryable: boolean, details: map}}`. Usage appears only when reported by Codex.
+A plain `prompt` string can replace `messages`. Success has the shape `{:ok, %{output: map, model: "gpt-6.1-sol", reasoning_effort: "medium", usage: map | nil}}`. Errors have `{:error, %{code: atom, message: string, retryable: boolean, details: map}}`. Usage appears only when reported by Codex.
 
 The smoke probe should use a tiny synthetic prompt, no tools, and a schema that requests one short string. This proves the local authenticated Codex CLI selected the requested model and structured output path; it does not establish assignment completion, course quality, or a cost estimate for a full run.
 
-The GPT-6 Luna catalog also permits `none`; this integration fixes effort at `low` to match the selected cheap-mode profile. Model facts are from [official GPT-6 Luna documentation](https://developers.openai.com/api/docs/models/gpt-6-luna): Luna supports low reasoning effort and structured outputs. The actual local CLI integration uses the installed Codex CLI and Synaptic's local CodexExec source; it is separate from sending an OpenAI API request.
+The installed CLI catalog lists `medium` as a supported effort for `gpt-6.1-sol`. [Official model guidance](https://learn.chatgpt.com/docs/models#gpt-6.1-sol) describes selecting it in Codex; the [official CLI example](https://learn.chatgpt.com/docs/security/cli#choose-a-model-and-reasoning-effort) uses this model with medium effort. Account access must be verified by a real local call. This CLI integration is separate from sending an OpenAI API request.
 
 ## Local probe result
 
@@ -51,7 +53,7 @@ After that fix, a bounded course run with an in-memory-only 60-second service ti
 
 ## Host gateway for the local Kind UI
 
-The Linux Kind image has no host Codex CLI or ChatGPT login. For local development only, `RutviExercise.CodexGateway.Router` exposes a narrow HTTP bridge on the Mac host; it calls the same local `RutviExercise.Models.Codex` adapter and fixed `gpt-6-luna`/`low` settings. It does not add an API-key provider or copy Codex credentials into the image.
+The Linux Kind image has no host Codex CLI or ChatGPT login. For local development only, `RutviExercise.CodexGateway.Router` exposes a narrow HTTP bridge on the Mac host; it calls the same local `RutviExercise.Models.Codex` adapter and fixed `gpt-6.1-sol`/`medium` settings. It does not add an API-key provider or copy Codex credentials into the image.
 
 The gateway binds only to `127.0.0.1:4041`. Docker Desktop's `host.docker.internal` route was verified from the app pod to reach both a temporary host-loopback server and this gateway's `GET /health` (HTTP 200). `POST /v1/generate` requires a bearer token and accepts exactly a JSON object with `messages` and `output_schema`; the body is capped at 256 KiB. It rejects model, timeout, command, tool, filesystem, and other control fields. Responses preserve the Codex adapter's model, reasoning, usage, and structured error values. Provider execution is read-only, uses an ephemeral scratch directory, has a fixed 90-second timeout, and does not execute tool calls. The host accepts at most two simultaneous model calls plus four queued calls; excess queue wait is capped at five seconds. Client cancellation cannot stop an already running local CLI process, which remains bounded by the provider timeout.
 
@@ -61,6 +63,7 @@ For the developer's local setup, the gateway process reads a mode-0600 token fil
 
 ```sh
 RUTVI_CODEX_GATEWAY_TOKEN_FILE="$HOME/.config/rutvi-exercise/codex-gateway.token" \
+SYNAPTIC_CODEX_BIN="$(command -v codex)" \
 RUTVI_CODEX_GATEWAY_BIND=127.0.0.1 RUTVI_CODEX_GATEWAY_PORT=4041 \
 MIX_ENV=dev mix run --no-start scripts/start-codex-gateway.exs
 ```
@@ -85,4 +88,4 @@ The first authenticated UI course failed during three research calls. Core inspe
 
 ### Final Kind/Studio course through local Codex
 
-The final Kind/Studio course completed durably through the authenticated host gateway using `gpt-6-luna` at low effort. History recorded 12 model-response events: 8 successful and 4 retryable `invalid_output` responses. Successful responses reported 165,223 total tokens; no currency amount was reported, so spend and the assignment's €5 ceiling remain unverified. The run reached peak external concurrency of two, generated two Czech lessons, three quiz questions from the lesson-author tasks, and six citations, and completed both human checkpoints. The UI course and artifact/download path succeeded. This is the current full-course evidence; the earlier native run predates the final quiz-ownership contract.
+The final Kind/Studio course completed durably through the authenticated host gateway using `gpt-6-luna` at low effort. History recorded 12 model-response events: 8 successful and 4 retryable `invalid_output` responses. Successful responses reported 165,223 total tokens; no currency amount was reported, so spend and the assignment's €5 ceiling remain unverified. The run reached peak external concurrency of two, generated two Czech lessons, three quiz questions from the lesson-author tasks, and six citations, and completed both human checkpoints. The UI course and artifact/download path succeeded. This is historical full-course evidence; see the latest verification linked from the repository README.

@@ -2,6 +2,19 @@
 
 ## Current verification — 5 October 2026
 
+- [Completed Sol course](2026-10-05-sol-course.json): two Czech lessons, two learning objectives, three quiz questions, and source citations.
+- [Redacted Sol history](2026-10-05-sol-trace.json): actual ordered events, timestamps, agent relationships, artifact IDs, model settings, outcome codes, and reported usage. Inputs, prompts, raw model responses, identity fields, credentials, and detailed error text are omitted.
+
+Run `kJEQb4j6B1JCUJivL9CzTKpk` used real `gpt-6.1-sol` at medium reasoning through the authenticated host gateway and the Kind application. It started at 14:48:01.876235 UTC and completed at 14:55:08.254063 UTC on 5 October 2026 (16:48–16:55 in Warsaw). Its 426.377-second wall duration includes two human checkpoint waits and a pod replacement. The same checkpoint, run ID, and earlier history survived the replacement; both checkpoints resumed successfully. Two unauthorized task reads were denied.
+
+The trace records 14 model responses: 10 successful, 3 retryable `invalid_output` outcomes, and 1 timeout. Successful responses reported 178,674 prompt tokens and 4,573 completion tokens. Failed responses provided no usage, and currency spend was unavailable. Peak concurrency was two. The trace includes a SHA-256 checksum of the course file.
+
+This captured run has 32 external starts and 33 finishes: the timeout's watchdog and waiting caller both logged cleanup. The runtime now releases each lease and records its finish only once; a regression test verifies that behavior. The captured trace retains the actual events from before that fix.
+
+See the [Sol verification record](../verification-2026-10-05-sol.md) for checks and limitations.
+
+## Earlier Luna verification — 5 October 2026
+
 - [Completed course](2026-10-05-course.json): two Czech lessons, two learning objectives, three quiz questions, and source citations.
 - [Redacted history](2026-10-05-trace.json): actual ordered events, timestamps, agent relationships, artifact IDs, model settings, outcome codes, and reported usage. Inputs, prompts, raw model responses, identity fields, credentials, and detailed error text are omitted.
 

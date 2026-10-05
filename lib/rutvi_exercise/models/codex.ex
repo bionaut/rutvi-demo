@@ -2,14 +2,14 @@ defmodule RutviExercise.Models.Codex do
   @moduledoc """
   Structured single-response development adapter backed by Synaptic's local Codex CLI provider.
 
-  Calls always use gpt-6-luna with low reasoning, read-only sandboxing, no approvals,
+  Calls always use gpt-6.1-sol with medium reasoning, read-only sandboxing, no approvals,
   ephemeral sessions, and a bounded timeout. This adapter does not execute tools.
   """
 
   alias ExJsonSchema.{Schema, Validator}
 
-  @model "gpt-6-luna"
-  @reasoning_effort "low"
+  @model "gpt-6.1-sol"
+  @reasoning_effort "medium"
   @default_timeout_ms 30_000
   @max_timeout_ms 120_000
   @allowed_options [:command_runner, :codex_bin, :cwd, :scratch_dir, :timeout_ms]

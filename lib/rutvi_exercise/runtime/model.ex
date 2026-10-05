@@ -15,7 +15,8 @@ defmodule RutviExercise.Runtime.Model do
     service = Store.read(& &1.services[task.service_id])
 
     defaults = %{
-      model: Application.get_env(:rutvi_exercise, :model, "gpt-6-luna"),
+      model: Application.get_env(:rutvi_exercise, :model, "gpt-6.1-sol"),
+      reasoning_effort: Application.get_env(:rutvi_exercise, :reasoning_effort, "medium"),
       timeout_ms: 10_000,
       tool_timeout_ms: 5_000
     }
@@ -358,22 +359,18 @@ defmodule RutviExercise.Runtime.Model do
 
     Store.transact(fn data ->
       key = {:active, task.run_id}
+      leases = Map.get(data.counters, key, MapSet.new())
 
-      {:ok,
-       Store.event(
-         %{
-           data
-           | counters:
-               Map.update(
-                 data.counters,
-                 key,
-                 MapSet.new(),
-                 &MapSet.delete(&1, token)
-               )
-         },
-         data.tasks[task.task_id],
-         :external_finished
-       )}
+      if MapSet.member?(leases, token) do
+        {:ok,
+         Store.event(
+           %{data | counters: Map.put(data.counters, key, MapSet.delete(leases, token))},
+           data.tasks[task.task_id],
+           :external_finished
+         )}
+      else
+        {:ok, data}
+      end
     end)
   end
 

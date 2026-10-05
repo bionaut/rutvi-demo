@@ -124,14 +124,14 @@ defmodule RutviExercise.Models.RemoteCodex do
 
   defp decode_response({200, body}) do
     with {:ok, response} <- Jason.decode(body),
-         %{"output" => output, "model" => "gpt-6-luna", "reasoning_effort" => "low"} =
+         %{"output" => output, "model" => "gpt-6.1-sol", "reasoning_effort" => "medium"} =
            response <- response,
          true <- is_map(output) do
       {:ok,
        %{
          output: output,
-         model: "gpt-6-luna",
-         reasoning_effort: "low",
+         model: "gpt-6.1-sol",
+         reasoning_effort: "medium",
          usage: Map.get(response, "usage")
        }}
     else

@@ -10,6 +10,13 @@ defmodule RutviExercise.ModelProtocolTest do
         do: send(pid, {:request, request, opts})
 
       case input["scenario"] do
+        "watchdog_timeout" ->
+          if request.attempt == 1 do
+            Process.sleep(1_000)
+          end
+
+          {:ok, %{output: %{"summary" => "accepted", "citations" => []}, model: opts[:model]}}
+
         "retry" ->
           case request.attempt do
             1 ->
@@ -173,6 +180,26 @@ defmodule RutviExercise.ModelProtocolTest do
     assert {:ok, %{status: :failed}} = Runtime.wait(t.task_id, @caller, 3000)
     {:ok, events} = Runtime.history(t.task_id, @caller)
     assert Enum.count(events, &(&1.type == :provider_reserved)) == 3
+  end
+
+  test "watchdog timeout releases each external lease and records its finish once", %{service: id} do
+    definition = Store.read(& &1.services[id])
+    new_id = Store.id()
+
+    assert {:ok, _} =
+             Runtime.register_service(%{
+               definition
+               | service_id: new_id,
+                 capabilities: [new_id],
+                 model_profile: %{timeout_ms: 100}
+             })
+
+    {:ok, task} = Runtime.start(new_id, %{"scenario" => "watchdog_timeout"}, @caller)
+    assert {:ok, %{status: :completed}} = Runtime.wait(task.task_id, @caller, 3_000)
+    {:ok, events} = Runtime.history(task.task_id, @caller)
+    assert Enum.count(events, &(&1.type == :external_started)) == 2
+    assert Enum.count(events, &(&1.type == :external_finished)) == 2
+    assert Store.read(&MapSet.size(&1.counters[{:active, task.run_id}])) == 0
   end
 
   test "K10 validates multi-call tools, preserves IDs/texts and uses allowed override", %{

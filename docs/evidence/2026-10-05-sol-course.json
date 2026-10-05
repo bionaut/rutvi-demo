@@ -1,0 +1,119 @@
+{
+  "audience": "Začínající backend vývojáři",
+  "lessons": [
+    {
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S1"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S2"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S3"
+        }
+      ],
+      "id": "L1",
+      "objective_id": "O1",
+      "revision": 0,
+      "text": "Představte si modelový backend objednávek. Zpráva „Objednávka byla vytvořena“ popisuje nastalou skutečnost, proto jde o událost. Zpráva „Vytvoř objednávku“ požaduje akci, proto jde o příkaz. Při rozlišování se ptejte: sděluje zpráva, co se stalo, nebo požaduje, aby se něco provedlo? [S1/P1]\n\nProducent události nemusí znát všechny konzumenty. V modelovém scénáři tedy může oznámit vytvoření objednávky, aniž by znal všechny části systému, které tuto skutečnost zpracují. Rozlišujte obsah zprávy od znalosti jejích příjemců: událost popisuje skutečnost a její producent nemusí mít přehled o všech konzumentech. [S1/P1]\n\nPředpokládejme doručení alespoň jednou. Stejná událost může přijít opakovaně, takže druhé doručení samo o sobě neznamená druhou objednávku. Potvrzení přijetí navíc neprokazuje dokončení obchodní operace. Pokud konzument potvrdil zprávu, nelze z tohoto potvrzení vyvodit, že už provedl požadovanou změnu dat. [S2/P1]\n\nNavrhněte konzumenta tak, aby opakované zpracování stejné události neopakovalo obchodní účinek. V našem příkladu použijte identifikátor události k rozpoznání již zpracované zprávy; při opakování už stejnou změnu neprovádějte. Při prvním zpracování uložte identifikátor i změnu dat v jedné transakci. Oddělené zápisy mohou při pádu zanechat nekonzistenci: například uložený identifikátor bez odpovídající změny dat, nebo změnu dat bez uloženého identifikátoru. Společné uložení obou částí je proto součástí návrhu zpracování bez opakovaného obchodního účinku. [S3/P1]"
+    },
+    {
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S4"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S5"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S6"
+        }
+      ],
+      "id": "L2",
+      "objective_id": "O2",
+      "revision": 0,
+      "text": "Obnova po pádu: pokračujte podle uložených výsledků\n\nPředstavte si modelové zpracování objednávky: dvě nezávislé úlohy připravují podklady a následující krok potřebuje oba výsledky. Nezávislé úlohy mohou běžet souběžně, ale nastavte limit souběhu, který chrání navazující služby. Nepředpokládejte pořadí jejich dokončení; závislý krok spusťte až po získání všech potřebných výsledků. [S5/P1]\n\nPři dočasné chybě opakujte pokus s prodlevou a konečným limitem. Pro tento model můžete například zvolit nejvýše tři pokusy; konkrétní počet je volba scénáře. Uložené výsledky využijte k přeskočení dokončených kroků. Po restartu zkontrolujte tyto výsledky, protože restart neobnoví ztracenou paměť procesu. Dokončení evidované pouze v paměti tedy pro obnovu nestačí. [S4/P1]\n\nZvláštní pozornost vyžaduje externí volání. Externí služba může požadavek přijmout a váš proces může spadnout ještě před uložením odpovědi. Výsledek pak zůstává neznámý: chybějící uložená odpověď sama neznamená, že externí účinek nenastal. Pro takový případ použijte idempotenci nebo dotaz na stav. Samotné opakování volání obecně nezaručuje právě jeden externí účinek. [S6/P1]\n\nPři návrhu obnovy proto spojte tři pravidla: dokončené kroky přeskočte podle uložených výsledků a dočasné chyby opakujte omezeně s prodlevou; souběh omezte a respektujte závislosti; neznámý externí výsledek ošetřete idempotencí či ověřením stavu. Tento postup rozlišuje obnovu kroků, koordinaci úloh a nejistotu externího volání. [S4/P1; S5/P1; S6/P1]"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "O1",
+      "text": "Začínající backend vývojář v modelovém scénáři správně rozliší událost od příkazu a vysvětlí, proč producent nemusí znát všechny konzumenty [S1/P1]; identifikuje možnost duplicit při doručení alespoň jednou a odliší potvrzení přijetí od dokončení obchodní operace [S2/P1]; navrhne zpracování bez opakování obchodního účinku s uložením identifikátoru události a změny dat v jedné transakci [S3/P1]."
+    },
+    {
+      "id": "O2",
+      "text": "Začínající backend vývojář pro modelový scénář s pádem procesu navrhne postup splňující tři kritéria: opakování dočasných chyb s prodlevou a konečným limitem a použití uložených výsledků k přeskočení dokončených kroků [S4/P1]; omezený souběh nezávislých úloh a čekání závislého kroku na potřebné výsledky bez předpokladu pořadí dokončení [S5/P1]; ošetření neznámého výsledku externího volání pomocí idempotence či dotazu na stav a vysvětlení, proč samotné retry obecně nezaručuje právě jeden externí účinek [S6/P1]."
+    }
+  ],
+  "outline": [
+    {
+      "lesson_id": "L1",
+      "objective_id": "O1"
+    },
+    {
+      "lesson_id": "L2",
+      "objective_id": "O2"
+    }
+  ],
+  "questions": [
+    {
+      "answer": "Jde o událost, protože popisuje nastalou skutečnost; producent nemusí znát všechny konzumenty. [S1/P1] Potvrzení přijetí neprokazuje dokončení obchodní operace a doručení alespoň jednou připouští duplicity. [S2/P1] Rozpoznejte již zpracovaný identifikátor a neopakujte obchodní účinek. Při prvním zpracování uložte identifikátor události a změnu dat v jedné transakci. [S3/P1]",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S1"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S2"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S3"
+        }
+      ],
+      "explanation": "Příkaz by požadoval akci, například „Vytvoř objednávku“, zatímco zadaná zpráva oznamuje skutečnost. [S1/P1] Opakované doručení je slučitelné s doručením alespoň jednou; potvrzení přijetí nelze zaměnit za dokončení operace. [S2/P1] Společná transakce ukládá identifikátor i změnu dat; oddělené zápisy mohou při pádu zanechat nekonzistenci. [S3/P1]",
+      "id": "Q1",
+      "objective_id": "O1",
+      "question": "Backend vydá zprávu „Objednávka byla vytvořena“. Konzument ji při doručení alespoň jednou dostane dvakrát a potvrdí přijetí. Je zpráva událost, nebo příkaz? Musí producent znát všechny konzumenty? Co potvrzení dokazuje a jak zabráníte opakování stejné změny dat? [S1/P1; S2/P1; S3/P1]"
+    },
+    {
+      "answer": "A přeskočím podle uloženého výsledku. B opakuji s prodlevou a konečným limitem pokusů. Nezávislé úlohy spouštím s omezeným souběhem; C čeká na oba potřebné výsledky bez předpokladu pořadí dokončení. [S4/P1; S5/P1]",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S4"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S5"
+        }
+      ],
+      "explanation": "Uložené výsledky umožňují přeskočit dokončené kroky, zatímco restart neobnoví ztracenou paměť. Limit souběhu chrání navazující služby a závislý krok musí čekat na potřebné výsledky. [S4/P1; S5/P1]",
+      "id": "Q2",
+      "objective_id": "O2",
+      "question": "V modelovém scénáři potřebuje krok C výsledky nezávislých úloh A a B. Po pádu je uložen výsledek A; B skončila dočasnou chybou. Jak navrhnete obnovu a koordinaci úloh? [S4/P1; S5/P1]"
+    },
+    {
+      "answer": "Ne. Výsledek je neznámý; použiji idempotenci nebo dotaz na stav externího požadavku. [S6/P1]",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S6"
+        }
+      ],
+      "explanation": "Externí služba už mohla požadavek přijmout, přestože odpověď není uložená. Bez idempotence či dotazu na stav opakování obecně nezaručuje právě jeden externí účinek. [S6/P1]",
+      "id": "Q3",
+      "objective_id": "O2",
+      "question": "Proces spadl po přijetí požadavku externí službou, ale před uložením odpovědi. Zaručí samotné retry právě jeden externí účinek a jak tento případ ošetříte? [S6/P1]"
+    }
+  ],
+  "title": "Základy událostmi řízených systémů"
+}

@@ -24,7 +24,7 @@ defmodule RutviExercise.Models.RemoteCodexTest do
     :ok
   end
 
-  test "sends only the structured request over authenticated gateway and checks fixed Luna metadata" do
+  test "sends only the structured request over authenticated gateway and checks fixed Sol metadata" do
     parent = self()
 
     client = fn :post, {url, headers, content_type, body}, request_opts, _http_opts ->
@@ -32,8 +32,8 @@ defmodule RutviExercise.Models.RemoteCodexTest do
 
       response = %{
         output: %{"answer" => "ready"},
-        model: "gpt-6-luna",
-        reasoning_effort: "low",
+        model: "gpt-6.1-sol",
+        reasoning_effort: "medium",
         usage: %{prompt_tokens: 8, completion_tokens: 2, total_tokens: 10}
       }
 
@@ -52,8 +52,8 @@ defmodule RutviExercise.Models.RemoteCodexTest do
              )
 
     assert result.output == %{"answer" => "ready"}
-    assert result.model == "gpt-6-luna"
-    assert result.reasoning_effort == "low"
+    assert result.model == "gpt-6.1-sol"
+    assert result.reasoning_effort == "medium"
 
     assert_received {:request, ~c"http://127.0.0.1:4041/v1/generate", headers,
                      ~c"application/json", body, opts}
@@ -68,21 +68,29 @@ defmodule RutviExercise.Models.RemoteCodexTest do
   end
 
   test "rejects model drift and maps structured errors without fallback" do
-    client = fn _method, _request, _request_opts, _http_opts ->
-      {:ok,
-       {{~c"HTTP/1.1", 200, ~c"OK"}, [],
-        ~s({"output":{"answer":"x"},"model":"gpt-5.5","reasoning_effort":"low"})}}
-    end
-
     request = %{messages: [%{role: :user, content: "x"}], output_schema: @schema}
 
-    assert {:error, %{code: :gateway_protocol_error}} =
-             RemoteCodex.generate(request, http_client: client)
+    for {model, effort} <- [
+          {"gpt-5.5", "medium"},
+          {"gpt-6-luna", "low"},
+          {"gpt-6.1-sol", "low"},
+          {"gpt-6.1-sol", "high"}
+        ] do
+      client = fn _method, _request, _request_opts, _http_opts ->
+        body =
+          Jason.encode!(%{output: %{"answer" => "x"}, model: model, reasoning_effort: effort})
+
+        {:ok, {{~c"HTTP/1.1", 200, ~c"OK"}, [], body}}
+      end
+
+      assert {:error, %{code: :gateway_protocol_error}} =
+               RemoteCodex.generate(request, http_client: client)
+    end
 
     error_client = fn _method, _request, _request_opts, _http_opts ->
       body =
         Jason.encode!(%{
-          error: %{code: "model_unavailable", message: "Luna unavailable", retryable: false}
+          error: %{code: "model_unavailable", message: "Sol unavailable", retryable: false}
         })
 
       {:ok, {{~c"HTTP/1.1", 503, ~c"Unavailable"}, [], body}}

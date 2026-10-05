@@ -1,6 +1,6 @@
 # Acceptance evidence
 
-The latest verification is the [5 October 2026 record](verification-2026-10-05.md), with a fresh actual-model course and Kubernetes checkpoint recovery.
+The latest verification is the [5 October 2026 Sol record](verification-2026-10-05-sol.md), with a fresh actual-model course at medium reasoning and Kubernetes checkpoint recovery.
 
 This is a historical verification record from September 2026. T/K identifiers and the €5 threshold below refer to the earlier assignment used during development, not additional requirements in the [final assignment](spec/assignment.pdf). Run `scripts/check.sh` for current offline results.
 

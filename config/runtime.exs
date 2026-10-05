@@ -18,7 +18,7 @@ model_adapter =
       raise "unsupported RUTVI_MODEL_PROVIDER=#{inspect(other)}; choose codex, remote_codex or deterministic"
   end
 
-model = System.get_env("RUTVI_MODEL", "gpt-6-luna")
+model = System.get_env("RUTVI_MODEL", "gpt-6.1-sol")
 
 model_defaults =
   case System.get_env("RUTVI_MODEL_PROFILE", "strict") do

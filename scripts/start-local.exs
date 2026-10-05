@@ -13,7 +13,7 @@ adapter =
   end
 
 Application.put_env(:rutvi_exercise, :model_adapter, adapter)
-Application.put_env(:rutvi_exercise, :model, System.get_env("RUTVI_MODEL", "gpt-6-luna"))
+Application.put_env(:rutvi_exercise, :model, System.get_env("RUTVI_MODEL", "gpt-6.1-sol"))
 
 Application.put_env(
   :rutvi_exercise,
