@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rutvi Course Studio</title>
+  <link rel="stylesheet" href="/studio/app.css">
+  <script src="/studio/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#course-reader">Skip to course</a>
+  <nav class="rail" aria-label="Workspace">
+    <a class="brand" href="/" aria-label="Rutvi Course Studio"><span class="brand-mark">r</span><span>rutvi<span class="brand-subtitle">Course Studio</span></span></a>
+    <a class="rail-current" href="#workspace" aria-current="page"><span aria-hidden="true">▤</span> Course workspace</a>
+    <div class="rail-note"><span class="rail-dot" aria-hidden="true"></span><span>Saved progress<br>and follow-up questions</span></div>
+  </nav>
+  <div class="app-shell" id="workspace">
+    <header class="topbar"><div><span class="breadcrumb">Course Studio</span><span class="breadcrumb-divider" aria-hidden="true">/</span><strong>Workspace</strong></div><span id="provider" class="provider">Connecting…</span></header>
+    <main>
+      <aside class="setup" aria-labelledby="create-title">
+        <details id="setup-config" class="setup-config" open><summary id="setup-summary">Course settings <span aria-hidden="true">+</span></summary><div class="setup-heading"><p class="eyebrow">COURSE SETUP</p><h1 id="create-title">Course setup</h1><p>Two lessons from the supplied reference passages.</p></div>
+        <form id="course-form">
+          <label for="topic">Topic</label><textarea id="topic" name="topic" rows="2" readonly>Základy událostmi řízených systémů</textarea>
+          <p class="hint">Fixed topic and sources for this exercise. Output is in Czech.</p>
+          <label for="audience">Audience</label><input id="audience" name="audience" value="Junior developers" maxlength="300" placeholder="For example, junior developers">
+          <label class="check"><input type="checkbox" id="ask-audience"><span>Ask me about the audience</span></label>
+          <label for="style">Learning style</label><select id="style" name="style"><option value="practical">Practical</option><option value="conceptual">Conceptual</option></select>
+          <label class="check"><input type="checkbox" id="ask-style"><span>Confirm style in a follow-up</span></label>
+          <p class="hint">The exercise defines the lesson format.</p>
+          <div class="actions"><button id="generate" type="submit">Generate course <span aria-hidden="true">↗</span></button><button id="cancel" type="button" class="secondary" hidden>Cancel</button></div>
+        </form></details>
+        <p id="error" role="alert" hidden></p>
+        <section id="question" class="question" hidden aria-labelledby="question-title">
+          <p class="eyebrow">YOUR INPUT NEEDED</p><h2 id="question-title">Follow-up question</h2><p class="question-note">The planner will continue after your answer.</p>
+          <form id="answer-form"><div id="answer-fields"></div><button type="submit">Send answer &amp; continue</button></form>
+        </section>
+        <section class="activity" aria-labelledby="progress-title">
+          <div class="activity-heading"><h2 id="progress-title">Progress</h2><span id="task-status" role="status" aria-live="polite">Ready to start</span></div>
+          <ol id="stages" class="stages"><li data-role="research"><span class="dot" aria-hidden="true"></span><span>Research</span><span class="stage-state">—</span></li><li data-role="plan"><span class="dot" aria-hidden="true"></span><span>Plan</span><span class="stage-state">—</span></li><li data-role="author"><span class="dot" aria-hidden="true"></span><span>Write</span><span class="stage-state">—</span></li><li data-role="review"><span class="dot" aria-hidden="true"></span><span>Review</span><span class="stage-state">—</span></li></ol>
+          <p id="progress-note" class="hint">Actual agent progress will appear here.</p>
+          <details class="activity-inspector" id="activity-inspector"><summary>Activity history <span id="event-count"></span></summary><ol id="timeline" class="timeline"><li class="muted">No course started yet.</li></ol><p id="reference" class="reference" hidden></p></details>
+        </section>
+      </aside>
+      <section id="course-reader" class="reader" aria-labelledby="reader-title" tabindex="-1">
+        <div class="reader-heading"><div><p class="eyebrow">COURSE READER</p><h2 id="reader-title">Your course</h2><p id="reader-subtitle">Generate a course to begin reading.</p></div><a id="download" class="download" download="rutvi-course.json" hidden>Download <span>JSON</span><span aria-hidden="true">↓</span></a></div>
+        <div id="reader-tabs" class="reader-tabs" role="tablist" aria-label="Course sections"><button id="tab-overview" role="tab" type="button" aria-selected="true" aria-controls="panel-overview" data-tab="overview">Overview</button><button id="tab-lesson-1" role="tab" type="button" aria-selected="false" aria-controls="panel-lesson-1" data-tab="lesson-1" tabindex="-1" disabled>Lesson 1</button><button id="tab-lesson-2" role="tab" type="button" aria-selected="false" aria-controls="panel-lesson-2" data-tab="lesson-2" tabindex="-1" disabled>Lesson 2</button><button id="tab-quiz" role="tab" type="button" aria-selected="false" aria-controls="panel-quiz" data-tab="quiz" tabindex="-1" disabled>Quiz</button><button id="tab-sources" role="tab" type="button" aria-selected="false" aria-controls="panel-sources" data-tab="sources" tabindex="-1">Sources</button></div>
+        <div class="reader-content">
+          <section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0"><div class="empty-state"><span class="empty-mark" aria-hidden="true">▤</span><p class="eyebrow">READY WHEN YOU ARE</p><h3>A clear course, one section at a time.</h3><p>Set your audience and generate the course. Read the overview, work through both lessons, and check your understanding with the quiz.</p><div class="empty-footnote"><span aria-hidden="true">↖</span> Start with the course setup</div></div></section>
+          <section id="panel-lesson-1" role="tabpanel" aria-labelledby="tab-lesson-1" tabindex="0" hidden></section>
+          <section id="panel-lesson-2" role="tabpanel" aria-labelledby="tab-lesson-2" tabindex="0" hidden></section>
+          <section id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz" tabindex="0" hidden></section>
+          <section id="panel-sources" role="tabpanel" aria-labelledby="tab-sources" tabindex="0" hidden></section>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

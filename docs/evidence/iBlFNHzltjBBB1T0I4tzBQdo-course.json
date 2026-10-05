@@ -1,0 +1,111 @@
+{
+  "audience": "Začínající backend vývojáři",
+  "lessons": [
+    {
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S1"
+        }
+      ],
+      "id": "L1",
+      "objective_id": "O1",
+      "revision": 0,
+      "text": "Událost oznamuje, že se něco stalo; příkaz žádá, aby někdo něco udělal. Rozdíl poznáte podle významu zprávy: „Objednávka byla zaplacena“ popisuje minulou skutečnost, zatímco „Zpracuj platbu objednávky“ požaduje akci. Událost tedy není jen jinak pojmenovaný příkaz. Popisuje fakt, na který mohou další části systému reagovat. [S1/P1]\n\nPředstavte si backend pro objednávky. Služba objednávek po zaplacení zveřejní událost, že platba proběhla. Sklad ji může využít k přípravě zásilky, analytika k aktualizaci přehledu a e-mailová služba k odeslání potvrzení. Producent, tedy služba, která událost vytvoří, nemusí znát všechny tyto konzumenty ani rozhodovat, co každý z nich udělá. [S1/P1]\n\nToto oddělení pomáhá, když později přidáte další konzument: producent nemusí být upraven jen proto, že nová část systému chce reagovat na již oznamovanou skutečnost. Každý konzument může událost použít pro svou vlastní práci. Zpráva přitom stále vyjadřuje tutéž nastalou skutečnost, nikoli nový požadavek od producenta. [S1/P1]\n\nPři návrhu se proto ptejte: „Co se právě stalo?“ Pokud zpráva odpovídá „Platba byla přijata“, jde o událost. Pokud říká „Proveď platbu“, je to příkaz. Události pojmenovávejte jako skutečnosti; příkazy jako požadované akce. Takto snáze určíte, kdo něco oznamuje a kdo může na oznámení navázat. Producent pak nemusí znát všechny konzumenty, kteří se rozhodnou na událost reagovat. [S1/P1]"
+    },
+    {
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S2"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S3"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S4"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S5"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S6"
+        }
+      ],
+      "id": "L2",
+      "objective_id": "O2",
+      "revision": 0,
+      "text": "## Zpracování událostí odolné vůči chybám\n\nPředstavte si událost `PlatbaZadána`, kterou zpracovává backendový worker. Broker může událost doručit opakovaně: potvrzení přijetí navíc samo o sobě nedokazuje, že obchodní operace doběhla. Proto navrhněte zpracování tak, aby stejná událost neprovedla obchodní účinek dvakrát. Uložte identifikátor události a související změnu dat v jedné transakci. Pokud je zapíšete odděleně, pád mezi zápisy může zanechat nekonzistentní stav. (S2/P1; S3/P1)\n\nU dočasné chyby opakujte zpracování s prodlevou a konečným limitem. Výsledek dokončených kroků ukládejte, aby je worker po restartu mohl přeskočit; restart sám nevrátí ztracenou paměť procesu. (S4/P1)\n\nNezávislé úlohy můžete spouštět souběžně, ale omezte jejich počet s ohledem na kapacitu navazujících služeb. Nepředpokládejte pořadí dokončení: krok závislý na jiných výsledcích musí počkat, až jsou k dispozici. (S5/P1)\n\nPozor na externí účinky, například požadavek na platební službu. Proces může spadnout poté, co služba požadavek přijala, ale ještě před uložením její odpovědi. Výsledek pak není známý. Bez idempotence nebo možnosti zjistit stav retry obecně nezaručí právě jeden externí účinek. (S6/P1)\n\n**Postup:** transakčně uložte zpracování události, bezpečně opakujte dočasné chyby, souběh omezte a u externích účinků počítejte s neznámým výsledkem."
+    }
+  ],
+  "objectives": [
+    {
+      "id": "O1",
+      "text": "Rozlišit událost od příkazu a vysvětlit, proč producent události nemusí znát její konzumenty. (S1/P1)"
+    },
+    {
+      "id": "O2",
+      "text": "Navrhnout zpracování události s duplicitami, dočasnými chybami a pády: určit hranici transakce, retry s prodlevou a limitem, bezpečné souběžení a případ, kdy jeden externí účinek nelze zaručit. (S2/P1; S3/P1; S4/P1; S5/P1; S6/P1)"
+    }
+  ],
+  "outline": [
+    {
+      "lesson_id": "L1",
+      "objective_id": "O1"
+    },
+    {
+      "lesson_id": "L2",
+      "objective_id": "O2"
+    }
+  ],
+  "questions": [
+    {
+      "answer": "Je to událost, protože popisuje nastalou skutečnost. Producent nemusí znát všechny konzumenty.",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S1"
+        }
+      ],
+      "explanation": "Událost oznamuje, co se stalo; příkaz požaduje akci. Producent události nemusí znát všechny části systému, které na ni mohou reagovat. [S1/P1]",
+      "id": "Q1",
+      "objective_id": "O1",
+      "question": "Služba objednávek odešle zprávu „Objednávka byla zaplacena“. Je to událost, nebo příkaz? A musí služba objednávek znát každého konzumenta?"
+    },
+    {
+      "answer": "V jedné transakci uložíte identifikátor události i související změnu dat.",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S2"
+        },
+        {
+          "passage_id": "P1",
+          "source_id": "S3"
+        }
+      ],
+      "explanation": "Doručení může být duplicitní. Společná transakce předchází nekonzistenci, kterou by mohl způsobit pád mezi oddělenými zápisy.",
+      "id": "Q2",
+      "objective_id": "O2",
+      "question": "Jak uložíte zpracování události, aby její opakované doručení neopakovalo obchodní účinek?"
+    },
+    {
+      "answer": "Výsledek může být neznámý; bez idempotence nebo dotazu na stav retry obecně nezaručí právě jeden externí účinek.",
+      "citations": [
+        {
+          "passage_id": "P1",
+          "source_id": "S6"
+        }
+      ],
+      "explanation": "Přijetí požadavku a uložení odpovědi odděluje možnost pádu. Opakování pak může účinek provést znovu, případně nemusí vyřešit, zda už nastal.",
+      "id": "Q3",
+      "objective_id": "O2",
+      "question": "Worker zavolá externí službu, která požadavek přijme, ale worker spadne před uložením odpovědi. Co lze tvrdit o výsledku a retry?"
+    }
+  ],
+  "title": "Základy událostmi řízených systémů"
+}

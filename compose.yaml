@@ -1,0 +1,21 @@
+services:
+  rutvi:
+    build:
+      context: .
+    image: rutvi-exercise:local
+    environment:
+      HTTP_PORT: "4000"
+      RUTVI_STUDIO_DEMO: "true"
+      RUTVI_STUDIO_SECRET: ${RUTVI_STUDIO_SECRET:?Set a stable Studio secret of at least 64 characters}
+      RUTVI_DATABASE: /data/rutvi.sqlite3
+      RUTVI_MODEL_PROVIDER: ${RUTVI_MODEL_PROVIDER:-deterministic}
+      HTTP_IDENTITIES: ${HTTP_IDENTITIES:?Set HTTP_IDENTITIES to a JSON bearer-token map}
+    ports:
+      - "127.0.0.1:${HOST_HTTP_PORT:-4000}:4000"
+    volumes:
+      - rutvi-data:/data
+    restart: unless-stopped
+    init: true
+
+volumes:
+  rutvi-data:

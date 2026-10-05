@@ -1,0 +1,24 @@
+name: Offline checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '27.3'
+          elixir-version: '1.18.3'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Hex and Rebar
+        run: mix local.hex --force && mix local.rebar --force
+      - name: Fetch dependencies
+        run: MIX_ENV=test mix deps.get
+      - name: Run offline checks
+        run: scripts/check.sh

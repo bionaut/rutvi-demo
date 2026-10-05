@@ -1,0 +1,1077 @@
+defmodule Synaptic.Runner do
+  @moduledoc """
+  GenServer that executes a workflow definition, tracking context, waiting
+  states, retries, history, PubSub events, and suspend/resume logic.
+  """
+
+  use GenServer
+  require Logger
+
+  alias Synaptic.{Audit, Registry, RuntimeSecurity, Scorer, Step, Validation}
+  alias Phoenix.PubSub
+
+  @pubsub Synaptic.PubSub
+
+  # Grace period before shutting down a runner in a terminal state (1 minute)
+  @shutdown_grace_period_ms 60_000
+
+  @type state :: %{
+          run_id: String.t(),
+          workflow: module(),
+          steps: [Step.t()],
+          current_step_index: non_neg_integer(),
+          context: map(),
+          monitor_context: map(),
+          status: :running | :waiting_for_human | :completed | :failed | :stopped,
+          waiting: map() | nil,
+          history: list(map()),
+          retry_budget: map(),
+          last_error: term(),
+          async_tasks: %{optional(pid()) => %{step: Step.t(), monitor_ref: reference()}},
+          audit_state: map(),
+          runtime_security: map(),
+          validation_defaults: keyword()
+        }
+
+  # Client API
+  def child_spec(opts) do
+    run_id = Keyword.fetch!(opts, :run_id)
+
+    %{
+      id: {:synaptic_runner, run_id},
+      start: {__MODULE__, :start_link, [opts]},
+      restart: :transient
+    }
+  end
+
+  def start_link(opts) do
+    run_id = Keyword.fetch!(opts, :run_id)
+    GenServer.start_link(__MODULE__, opts, name: Registry.via(run_id))
+  end
+
+  def resume(run_id, payload) do
+    GenServer.call(Registry.via(run_id), {:resume, payload})
+  end
+
+  def snapshot(run_id, timeout \\ 5000) do
+    GenServer.call(Registry.via(run_id), :snapshot, timeout)
+  end
+
+  def history(run_id) do
+    GenServer.call(Registry.via(run_id), :history)
+  end
+
+  def stop(run_id, reason \\ :canceled) do
+    try do
+      GenServer.call(Registry.via(run_id), {:stop, reason})
+    catch
+      :exit, {:noproc, _} -> {:error, :not_found}
+    end
+  end
+
+  def purge(run_id) do
+    try do
+      GenServer.call(Registry.via(run_id), :purge)
+    catch
+      :exit, {:noproc, _} -> {:error, :not_found}
+    end
+  end
+
+  # Server callbacks
+  @impl true
+  def init(opts) do
+    definition = Keyword.fetch!(opts, :definition)
+    steps = definition.steps
+    start_at_step_index = Keyword.get(opts, :start_at_step_index, 0)
+
+    state = %{
+      run_id: Keyword.fetch!(opts, :run_id),
+      workflow: definition.module,
+      steps: steps,
+      current_step_index: start_at_step_index,
+      context: Keyword.get(opts, :context, %{}),
+      monitor_context: Keyword.get(opts, :monitor_context, %{}),
+      status: :running,
+      waiting: nil,
+      history: [],
+      retry_budget: Map.new(steps, &{&1.name, &1.max_retries}),
+      last_error: nil,
+      async_tasks: %{},
+      validation_defaults:
+        Keyword.get(opts, :validation_defaults, Validation.runtime_step_defaults()),
+      runtime_security:
+        RuntimeSecurity.new(
+          [
+            run_id: Keyword.fetch!(opts, :run_id),
+            tenant: Keyword.get(opts, :tenant)
+          ] ++ maybe_put_runtime_security_opts(Keyword.get(opts, :runtime_security))
+        ),
+      audit_state:
+        Audit.new(
+          [
+            run_id: Keyword.fetch!(opts, :run_id),
+            workflow: definition.module,
+            tenant: Keyword.get(opts, :tenant)
+          ] ++ maybe_put_audit_opts(Keyword.get(opts, :audit))
+        )
+    }
+
+    Synaptic.Monitor.capture_run_started(state)
+    {:ok, state, {:continue, :process_next_step}}
+  end
+
+  @impl true
+  def handle_continue(:process_next_step, state) do
+    case maybe_process_step(state) do
+      {:continue, new_state} ->
+        {:noreply, new_state, {:continue, :process_next_step}}
+
+      {:halt, new_state} ->
+        {:noreply, new_state}
+    end
+  end
+
+  @impl true
+  def handle_call(:snapshot, _from, state) do
+    reply = %{
+      run_id: state.run_id,
+      status: state.status,
+      current_step: current_step_name(state),
+      context: state.context,
+      waiting: state.waiting,
+      last_error: state.last_error,
+      retries: state.retry_budget
+    }
+
+    {:reply, RuntimeSecurity.sanitize_snapshot(reply, state.runtime_security), state}
+  end
+
+  @impl true
+  def handle_call(:history, _from, state) do
+    {:reply, Enum.reverse(state.history), state}
+  end
+
+  @impl true
+  def handle_call({:stop, reason}, _from, state) do
+    new_state =
+      state
+      |> Map.put(:status, :stopped)
+      |> push_history(%{event: :stopped, reason: reason})
+      |> publish_event(%{event: :stopped, reason: reason})
+
+    {:stop, {:shutdown, reason}, :ok, new_state}
+  end
+
+  @impl true
+  def handle_call(:purge, _from, state) do
+    purged_state =
+      state
+      |> Map.put(:context, %{})
+      |> Map.put(:history, [])
+      |> Map.put(:waiting, nil)
+      |> Map.put(:last_error, nil)
+
+    {:stop, :normal, :ok, purged_state}
+  end
+
+  @impl true
+  def handle_call({:resume, payload}, _from, %{status: :waiting_for_human} = state) do
+    with :ok <- validate_resume_payload(state, payload) do
+      new_state =
+        state
+        |> Map.put(:status, :running)
+        |> Map.put(:waiting, nil)
+        |> Map.update!(:context, &Map.put(&1, :human_input, payload))
+        |> push_history(%{event: :resumed, payload: payload})
+        |> publish_event(%{event: :resumed, payload: payload})
+
+      {:reply, :ok, new_state, {:continue, :process_next_step}}
+    else
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
+  end
+
+  def handle_call({:resume, _payload}, _from, state) do
+    {:reply, {:error, :not_waiting_for_human}, state}
+  end
+
+  defp maybe_process_step(%{status: status} = state) when status != :running,
+    do: {:halt, state}
+
+  defp maybe_process_step(state) do
+    case Enum.at(state.steps, state.current_step_index) do
+      nil ->
+        cond do
+          state.status != :running ->
+            {:halt, state}
+
+          async_pending?(state) ->
+            {:halt, state}
+
+          true ->
+            new_state =
+              state
+              |> push_history(%{event: :completed})
+              |> publish_event(%{event: :completed})
+              |> Map.put(:status, :completed)
+              |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+              |> schedule_shutdown_timer()
+
+            {:halt, new_state}
+        end
+
+      step ->
+        execute_step(step, state)
+    end
+  end
+
+  defp execute_step(%Step{type: :parallel} = step, state) do
+    Logger.metadata(run_id: state.run_id, step: step.name)
+    Logger.debug("running parallel step #{step.name}")
+
+    case validate_step_input(step, state) do
+      :ok ->
+        case invoke_step(step, state) do
+          {:error, reason} ->
+            handle_step_error(step, reason, state)
+
+          tasks when is_list(tasks) ->
+            case run_parallel_tasks(tasks, state.context) do
+              {:ok, data} ->
+                new_state = handle_step_success(state, step, data)
+                terminal_response(new_state)
+
+              {:stop, reason} ->
+                new_state =
+                  state
+                  |> Map.put(:status, :stopped)
+                  |> Map.put(:last_error, nil)
+                  |> push_history(%{event: :stopped, reason: reason})
+                  |> publish_event(%{event: :stopped, reason: reason})
+                  |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+                  |> schedule_shutdown_timer()
+
+                {:halt, new_state}
+
+              {:error, reason} ->
+                handle_step_error(step, reason, state)
+            end
+
+          other ->
+            handle_step_error(step, {:invalid_parallel_return, other}, state)
+        end
+
+      {:error, reason} ->
+        {:halt, fail_validation(state, step, reason)}
+    end
+  end
+
+  defp execute_step(%Step{type: :async} = step, state) do
+    Logger.metadata(run_id: state.run_id, step: step.name)
+    Logger.debug("starting async step #{step.name}")
+
+    case validate_step_input(step, state) do
+      :ok ->
+        new_state =
+          state
+          |> launch_async_step(step)
+          |> increment_step()
+
+        {:continue, new_state}
+
+      {:error, reason} ->
+        {:halt, fail_validation(state, step, reason)}
+    end
+  end
+
+  defp execute_step(step, state) do
+    Logger.metadata(run_id: state.run_id, step: step.name)
+    Logger.debug("running step #{step.name}")
+
+    case validate_step_input(step, state) do
+      :ok ->
+        case invoke_step(step, state) do
+          {:ok, data} when is_map(data) ->
+            new_state = handle_step_success(state, step, data)
+            terminal_response(new_state)
+
+          {:route, target_step, data} when is_atom(target_step) and is_map(data) ->
+            handle_step_route(state, step, target_step, data)
+
+          {:suspend, info} when is_map(info) ->
+            message = Map.get(info, :message)
+            metadata = Map.get(info, :metadata, %{})
+            context_updates = Map.get(info, :context_updates, %{})
+
+            new_context =
+              state.context
+              |> Map.merge(context_updates)
+              |> Map.delete(:human_input)
+
+            new_state =
+              state
+              |> Map.put(:context, new_context)
+              |> Map.put(:status, :waiting_for_human)
+              |> Map.put(:waiting, %{
+                step: step.name,
+                message: message,
+                metadata: metadata,
+                resume_schema: step.resume_schema
+              })
+              |> push_history(%{step: step.name, status: :waiting, message: message})
+              |> publish_event(%{
+                event: :waiting_for_human,
+                step: step.name,
+                message: message,
+                input: monitor_step_input(step, state.context),
+                output: %{
+                  message: message,
+                  metadata: metadata,
+                  resume_schema: step.resume_schema
+                }
+              })
+              |> publish_event(%{event: :waiting_for_human, step: step.name})
+
+            {:halt, new_state}
+
+          {:stop, reason} ->
+            new_state =
+              state
+              |> Map.put(:status, :stopped)
+              |> Map.put(:last_error, nil)
+              |> push_history(%{event: :stopped, reason: reason})
+              |> publish_event(%{event: :stopped, reason: reason})
+              |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+              |> schedule_shutdown_timer()
+
+            {:halt, new_state}
+
+          {:error, reason} ->
+            handle_step_error(step, reason, state)
+
+          other ->
+            handle_step_error(step, {:invalid_return, other}, state)
+        end
+
+      {:error, reason} ->
+        {:halt, fail_validation(state, step, reason)}
+    end
+  end
+
+  defp invoke_step(step, state) do
+    # Inject run_id and step_name into context for streaming support
+    enhanced_context =
+      state.context
+      |> Map.put(:__run_id__, state.run_id)
+      |> Map.put(:__step_name__, step.name)
+      |> maybe_put_context_tenant(state)
+
+    Task.async(fn ->
+      # Set process dictionary for Tools module to access
+      Process.put({:synaptic_context, :__run_id__}, state.run_id)
+      Process.put({:synaptic_context, :__step_name__}, step.name)
+      put_process_tenant(state)
+
+      run_step_fun(step, state.workflow, enhanced_context)
+    end)
+    |> Task.await(:infinity)
+  end
+
+  defp handle_step_success(state, step, data) do
+    case Validation.validate_step_output(
+           step.name,
+           step.output,
+           effective_step_validation(step, state),
+           data
+         ) do
+      :ok ->
+        pre_context = state.context
+
+        new_state =
+          state
+          |> Map.update!(:context, fn ctx ->
+            ctx
+            |> Map.merge(data)
+            |> Map.delete(:human_input)
+          end)
+          |> increment_step()
+          |> push_history(%{step: step.name, status: :ok})
+          |> publish_event(%{
+            event: :step_completed,
+            step: step.name,
+            input: monitor_step_input(step, pre_context),
+            output: data
+          })
+
+        run_scorers_async(
+          step,
+          state.workflow,
+          state.run_id,
+          pre_context,
+          new_state.context,
+          data
+        )
+
+        new_state
+
+      {:error, reason} ->
+        fail_validation(state, step, reason)
+    end
+  end
+
+  defp handle_step_route(state, step, target_step, data) do
+    case Validation.validate_step_output(
+           step.name,
+           step.output,
+           effective_step_validation(step, state),
+           data
+         ) do
+      :ok ->
+        pre_context = state.context
+
+        case find_step_index(state.steps, target_step) do
+          nil ->
+            handle_step_error(step, {:invalid_route_target, target_step}, state)
+
+          target_index ->
+            new_state =
+              state
+              |> Map.update!(:context, fn ctx ->
+                ctx
+                |> Map.merge(data)
+                |> Map.delete(:human_input)
+              end)
+              |> Map.put(:current_step_index, target_index)
+              |> push_history(%{step: step.name, status: :routed, target: target_step})
+              |> publish_event(%{
+                event: :step_routed,
+                step: step.name,
+                target: target_step,
+                input: monitor_step_input(step, pre_context),
+                output: data
+              })
+
+            run_scorers_async(
+              step,
+              state.workflow,
+              state.run_id,
+              pre_context,
+              new_state.context,
+              data
+            )
+
+            {:continue, new_state}
+        end
+
+      {:error, reason} ->
+        {:halt, fail_validation(state, step, reason)}
+    end
+  end
+
+  defp increment_step(state) do
+    Map.update!(state, :current_step_index, &(&1 + 1))
+  end
+
+  defp find_step_index(steps, step_name) do
+    Enum.find_index(steps, fn step -> step.name == step_name end)
+  end
+
+  defp push_history(state, entry) do
+    timestamped =
+      entry
+      |> Map.put(:timestamp, DateTime.utc_now())
+      |> RuntimeSecurity.sanitize_history_entry(state.runtime_security)
+
+    updated_history =
+      [timestamped | state.history]
+      |> RuntimeSecurity.trim_history(state.runtime_security)
+
+    %{state | history: updated_history}
+  end
+
+  defp publish_event(state, payload) do
+    event =
+      payload
+      |> Map.put(:run_id, state.run_id)
+      |> Map.put(:current_step, current_step_name(state))
+      |> RuntimeSecurity.sanitize_event(state.runtime_security)
+
+    PubSub.broadcast(@pubsub, topic(state.run_id), {:synaptic_event, event})
+
+    monitor_fields =
+      %{waiting: state.waiting, last_error: state.last_error}
+      |> RuntimeSecurity.sanitize_event(state.runtime_security)
+
+    Synaptic.Monitor.capture_run_event(Map.merge(state, monitor_fields), event)
+
+    audit_state =
+      Audit.record(
+        :workflow,
+        Map.get(payload, :event, :workflow_event),
+        workflow_audit_metadata(payload, state),
+        state.audit_state
+      )
+
+    %{state | audit_state: audit_state}
+  end
+
+  defp run_parallel_tasks(tasks, context) when is_list(tasks) do
+    # Note: parallel tasks don't have access to run_id/step_name for streaming
+    # This is a limitation - parallel steps can't use streaming
+    stream =
+      Task.async_stream(tasks, &run_parallel_task(&1, context),
+        timeout: :infinity,
+        ordered: false
+      )
+
+    Enum.reduce_while(stream, {:ok, %{}}, fn
+      {:ok, {:ok, data}}, {:ok, acc} when is_map(data) ->
+        {:cont, {:ok, Map.merge(acc, data)}}
+
+      {:ok, {:ok, invalid}}, _acc ->
+        {:halt, {:error, {:invalid_parallel_task_return, {:ok, invalid}}}}
+
+      {:ok, {:stop, reason}}, _acc ->
+        {:halt, {:stop, reason}}
+
+      {:ok, {:error, reason}}, _acc ->
+        {:halt, {:error, reason}}
+
+      {:ok, other}, _acc ->
+        {:halt, {:error, {:invalid_parallel_task_return, other}}}
+
+      {:exit, reason}, _acc ->
+        {:halt, {:error, {:parallel_task_crash, reason}}}
+    end)
+  end
+
+  defp run_parallel_tasks(_tasks, _context), do: {:error, :invalid_parallel_tasks}
+
+  defp run_parallel_task(fun, context) when is_function(fun, 1), do: fun.(context)
+  defp run_parallel_task(fun, _context) when is_function(fun, 0), do: fun.()
+  defp run_parallel_task(_other, _context), do: {:error, :invalid_parallel_task}
+
+  defp async_pending?(state), do: map_size(state.async_tasks) > 0
+
+  # Schedules process termination after a grace period when in a terminal state.
+  # This allows inspect/1 and history/1 to still work for a short time after completion.
+  defp schedule_shutdown_timer(state) do
+    if state.status in [:completed, :failed, :stopped] and not async_pending?(state) do
+      Process.send_after(
+        self(),
+        :shutdown_after_grace_period,
+        RuntimeSecurity.shutdown_after_ms(state.runtime_security, @shutdown_grace_period_ms)
+      )
+    end
+
+    state
+  end
+
+  @impl true
+  def handle_info({:async_step_result, pid, result}, state) do
+    case Map.pop(state.async_tasks, pid) do
+      {nil, _} ->
+        {:noreply, state}
+
+      {%{monitor_ref: ref, step: step}, async_tasks} ->
+        Process.demonitor(ref, [:flush])
+
+        new_state =
+          state
+          |> Map.put(:async_tasks, async_tasks)
+          |> process_async_result(step, result)
+
+        {:noreply, new_state}
+    end
+  end
+
+  def handle_info({:DOWN, ref, :process, pid, reason}, state) do
+    case Map.get(state.async_tasks, pid) do
+      nil ->
+        {:noreply, state}
+
+      %{monitor_ref: ^ref, step: step} ->
+        if reason == :normal do
+          {:noreply, state}
+        else
+          async_tasks = Map.delete(state.async_tasks, pid)
+
+          new_state =
+            state
+            |> Map.put(:async_tasks, async_tasks)
+            |> process_async_result(step, {:error, {:exit, reason}})
+
+          {:noreply, new_state}
+        end
+    end
+  end
+
+  def handle_info(:shutdown_after_grace_period, state) do
+    if state.status in [:completed, :failed, :stopped] and not async_pending?(state) do
+      {:stop, :normal, state}
+    else
+      # State changed (e.g. resumed), don't shut down
+      {:noreply, state}
+    end
+  end
+
+  defp process_async_result(%{status: :running} = state, step, result) do
+    handle_async_result(step, result, state)
+  end
+
+  defp process_async_result(state, _step, _result), do: state
+
+  defp handle_async_result(step, {:ok, data}, state) when is_map(data) do
+    case Validation.validate_step_output(
+           step.name,
+           step.output,
+           effective_step_validation(step, state),
+           data
+         ) do
+      :ok ->
+        pre_context = state.context
+
+        new_state =
+          state
+          |> Map.update!(:context, fn ctx ->
+            ctx
+            |> Map.merge(data)
+            |> Map.delete(:human_input)
+          end)
+          |> push_history(%{step: step.name, status: :ok, async: true})
+          |> publish_event(%{
+            event: :step_completed,
+            step: step.name,
+            async: true,
+            input: monitor_step_input(step, pre_context),
+            output: data
+          })
+          |> maybe_mark_completed()
+
+        run_scorers_async(
+          step,
+          state.workflow,
+          state.run_id,
+          pre_context,
+          new_state.context,
+          data
+        )
+
+        new_state
+
+      {:error, reason} ->
+        fail_validation(state, step, reason, async: true)
+    end
+  end
+
+  defp handle_async_result(step, {:stop, reason}, state) do
+    _ = step
+
+    state
+    |> Map.put(:status, :stopped)
+    |> Map.put(:last_error, nil)
+    |> push_history(%{event: :stopped, reason: reason})
+    |> publish_event(%{event: :stopped, reason: reason})
+    |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+    |> schedule_shutdown_timer()
+  end
+
+  defp handle_async_result(step, {:error, reason}, state) do
+    handle_async_failure(step, reason, state)
+  end
+
+  defp handle_async_result(step, other, state) do
+    handle_async_failure(step, {:invalid_return, other}, state)
+  end
+
+  defp handle_async_failure(step, reason, state) do
+    remaining = Map.get(state.retry_budget, step.name, 0)
+
+    state =
+      state
+      |> push_history(%{
+        step: step.name,
+        status: :error,
+        reason: reason,
+        retries_remaining: remaining,
+        async: true
+      })
+      |> publish_event(%{
+        event: :step_error,
+        step: step.name,
+        reason: reason,
+        retries_remaining: remaining,
+        async: true
+      })
+
+    cond do
+      remaining > 0 ->
+        Logger.warning("retrying async step #{step.name}, #{remaining} retries remaining")
+
+        state
+        |> Map.update!(:retry_budget, &Map.put(&1, step.name, remaining - 1))
+        |> publish_event(%{
+          event: :retrying,
+          step: step.name,
+          retries_remaining: remaining - 1,
+          reason: reason,
+          async: true
+        })
+        |> launch_async_step(step)
+
+      true ->
+        Logger.error("async step #{step.name} failed permanently: #{inspect(reason)}")
+
+        state
+        |> Map.put(:status, :failed)
+        |> Map.put(:last_error, reason)
+        |> publish_event(%{event: :failed, step: step.name, reason: reason})
+        |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+        |> schedule_shutdown_timer()
+    end
+  end
+
+  defp maybe_mark_completed(state) do
+    if state.status == :running and state.current_step_index >= length(state.steps) and
+         not async_pending?(state) do
+      state
+      |> push_history(%{event: :completed})
+      |> publish_event(%{event: :completed})
+      |> Map.put(:status, :completed)
+      |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+      |> schedule_shutdown_timer()
+    else
+      state
+    end
+  end
+
+  defp launch_async_step(state, step) do
+    parent = self()
+    workflow = state.workflow
+    # Inject run_id and step_name into context for streaming support
+    enhanced_context =
+      state.context
+      |> Map.put(:__run_id__, state.run_id)
+      |> Map.put(:__step_name__, step.name)
+      |> maybe_put_context_tenant(state)
+
+    {:ok, pid} =
+      Task.start(fn ->
+        # Set process dictionary for Tools module to access
+        Process.put({:synaptic_context, :__run_id__}, state.run_id)
+        Process.put({:synaptic_context, :__step_name__}, step.name)
+        put_process_tenant(state)
+
+        result = run_step_fun(step, workflow, enhanced_context)
+        send(parent, {:async_step_result, self(), result})
+      end)
+
+    ref = Process.monitor(pid)
+
+    state
+    |> Map.update!(:async_tasks, &Map.put(&1, pid, %{monitor_ref: ref, step: step}))
+    |> push_history(%{step: step.name, status: :async_started, async: true})
+    |> publish_event(%{
+      event: :async_step_started,
+      step: step.name,
+      input: monitor_step_input(step, state.context)
+    })
+  end
+
+  defp topic(run_id), do: "synaptic:run:" <> run_id
+
+  defp handle_step_error(step, reason, state) do
+    remaining = Map.get(state.retry_budget, step.name, 0)
+
+    state =
+      state
+      |> push_history(%{
+        step: step.name,
+        status: :error,
+        reason: reason,
+        retries_remaining: remaining
+      })
+      |> publish_event(%{
+        event: :step_error,
+        step: step.name,
+        reason: reason,
+        retries_remaining: remaining,
+        input: monitor_step_input(step, state.context),
+        output: %{error: reason}
+      })
+
+    cond do
+      remaining > 0 ->
+        Logger.warning("retrying step #{step.name}, #{remaining} retries remaining")
+
+        new_state =
+          state
+          |> Map.update!(:retry_budget, &Map.put(&1, step.name, remaining - 1))
+          |> Map.put(:last_error, reason)
+          |> publish_event(%{
+            event: :retrying,
+            step: step.name,
+            retries_remaining: remaining - 1,
+            reason: reason,
+            input: monitor_step_input(step, state.context),
+            output: %{error: reason}
+          })
+
+        {:continue, new_state}
+
+      true ->
+        Logger.error("step #{step.name} failed permanently: #{inspect(reason)}")
+
+        failed_state =
+          state
+          |> Map.put(:status, :failed)
+          |> Map.put(:last_error, reason)
+          |> publish_event(%{
+            event: :failed,
+            step: step.name,
+            reason: reason,
+            input: monitor_step_input(step, state.context),
+            output: %{error: reason}
+          })
+          |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+          |> schedule_shutdown_timer()
+
+        {:halt, failed_state}
+    end
+  end
+
+  defp validate_resume_payload(state, payload) do
+    case Enum.at(state.steps, state.current_step_index) do
+      %Step{} = step ->
+        validation = effective_step_validation(step, state)
+
+        Validation.validate_resume_payload(
+          step.name,
+          payload,
+          step.resume_schema,
+          validation
+        )
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp validate_step_input(step, state) do
+    Validation.validate_step_input(
+      step.name,
+      step.input,
+      effective_step_validation(step, state),
+      state.context
+    )
+  end
+
+  defp effective_step_validation(step, state) do
+    Validation.effective_step_validation(step, validation_defaults: state.validation_defaults)
+  end
+
+  defp fail_validation(state, step, reason, opts \\ []) do
+    async? = Keyword.get(opts, :async, false)
+
+    state
+    |> Map.put(:status, :failed)
+    |> Map.put(:last_error, reason)
+    |> push_history(%{step: step.name, status: :error, reason: reason, async: async?})
+    |> publish_event(%{
+      event: :step_error,
+      step: step.name,
+      reason: reason,
+      retries_remaining: 0,
+      async: async?
+    })
+    |> publish_event(%{event: :failed, step: step.name, reason: reason, async: async?})
+    |> RuntimeSecurity.terminal_cleanup(state.runtime_security)
+    |> schedule_shutdown_timer()
+  end
+
+  defp terminal_response(%{status: :failed} = state), do: {:halt, state}
+  defp terminal_response(state), do: {:continue, state}
+
+  defp current_step_name(state) do
+    case Enum.at(state.steps, state.current_step_index) do
+      nil -> nil
+      step -> step.name
+    end
+  end
+
+  defp run_step_fun(step, workflow, context) do
+    # Emit a Telemetry span around every step execution so host applications
+    # can observe per-step timings and outcomes.
+    #
+    # Events:
+    #   [:synaptic, :step, :start]
+    #   [:synaptic, :step, :stop]
+    #
+    # Start metadata:
+    #   - :run_id    - workflow run id (when available in context)
+    #   - :workflow  - workflow module
+    #   - :step_name - step name (atom)
+    #   - :type      - step type (:default | :parallel | :async | :llm)
+    #
+    # Stop metadata adds:
+    #   - :status    - :ok | :suspend | :error | :unknown
+    :telemetry.span(
+      [:synaptic, :step],
+      %{
+        run_id: Map.get(context, :__run_id__),
+        workflow: workflow,
+        step_name: step.name,
+        type: Map.get(step, :type, :default)
+      },
+      fn ->
+        result =
+          try do
+            Step.run(step, workflow, context)
+          catch
+            kind, reason ->
+              Logger.error("step #{step.name} crashed: #{inspect({kind, reason})}")
+              {:error, {kind, reason}}
+          end
+
+        status =
+          case result do
+            {:ok, _} -> :ok
+            {:route, _, _} -> :routed
+            {:suspend, _} -> :suspend
+            {:error, _} -> :error
+            _ -> :unknown
+          end
+
+        {result, %{status: status}}
+      end
+    )
+  end
+
+  defp run_scorers_async(%Step{} = step, workflow, run_id, pre_context, post_context, output)
+       when is_map(pre_context) and is_map(post_context) and is_map(output) do
+    scorer_specs = Scorer.normalize_scorer_specs(step.scorers)
+
+    Enum.each(scorer_specs, fn %{module: mod, opts: opts} ->
+      Task.start(fn ->
+        context = %Scorer.Context{
+          step: step,
+          workflow: workflow,
+          run_id: run_id,
+          pre_context: pre_context,
+          post_context: post_context,
+          output: output,
+          metadata: Map.new(opts)
+        }
+
+        :telemetry.span(
+          [:synaptic, :scorer],
+          %{
+            run_id: run_id,
+            workflow: workflow,
+            step_name: step.name,
+            scorer: mod
+          },
+          fn ->
+            {status, score, reason} =
+              try do
+                result = mod.score(context, context.metadata)
+                {:ok, result.score, result.reason}
+              rescue
+                error ->
+                  Logger.error(
+                    "scorer #{inspect(mod)} for step #{step.name} failed: #{inspect(error)}"
+                  )
+
+                  {:error, nil, Exception.message(error)}
+              catch
+                kind, error ->
+                  Logger.error(
+                    "scorer #{inspect(mod)} for step #{step.name} failed: #{inspect({kind, error})}"
+                  )
+
+                  {:error, nil, inspect({kind, error})}
+              end
+
+            {status,
+             %{
+               run_id: run_id,
+               workflow: workflow,
+               step_name: step.name,
+               scorer: mod,
+               status: status,
+               score: score,
+               reason: reason
+             }}
+          end
+        )
+      end)
+    end)
+
+    :ok
+  end
+
+  defp run_scorers_async(_step, _workflow, _run_id, _pre_context, _post_context, _output), do: :ok
+
+  defp workflow_audit_metadata(payload, state) do
+    reason = Map.get(payload, :reason)
+    issue_codes = Audit.issue_codes(reason)
+
+    %{
+      status: state.status,
+      step: Map.get(payload, :step),
+      current_step: current_step_name(state),
+      target: Map.get(payload, :target),
+      async: Map.get(payload, :async, false),
+      reason: if(is_nil(reason), do: nil, else: Audit.reason_code(reason)),
+      validation_surface: validation_surface(reason),
+      issue_codes: issue_codes,
+      issue_count: length(issue_codes)
+    }
+  end
+
+  defp validation_surface({:validation_failed, %{surface: surface}}), do: surface
+  defp validation_surface(_reason), do: nil
+
+  defp maybe_put_audit_opts(nil), do: []
+  defp maybe_put_audit_opts(audit), do: [audit: audit]
+
+  defp maybe_put_runtime_security_opts(nil), do: []
+  defp maybe_put_runtime_security_opts(runtime_security), do: [runtime_security: runtime_security]
+
+  defp maybe_put_context_tenant(context, %{runtime_security: _runtime_security} = state) do
+    tenant = state.context[:__tenant__]
+
+    if is_binary(tenant) and tenant != "" do
+      Map.put(context, :__tenant__, tenant)
+    else
+      context
+    end
+  end
+
+  defp put_process_tenant(state) do
+    tenant = state.context[:__tenant__]
+
+    if is_binary(tenant) and tenant != "" do
+      Process.put({:synaptic_context, :__tenant__}, tenant)
+    end
+  end
+
+  defp monitor_step_input(%Step{input: input_spec}, context)
+       when is_map(context) and is_map(input_spec) do
+    context =
+      context
+      |> Map.drop([:__run_id__, :__step_name__])
+
+    if map_size(input_spec) > 0 do
+      Map.take(context, Map.keys(input_spec))
+    else
+      context
+    end
+  end
+
+  defp monitor_step_input(_step, context) when is_map(context) do
+    Map.drop(context, [:__run_id__, :__step_name__])
+  end
+
+  defp monitor_step_input(_step, _context), do: %{}
+end

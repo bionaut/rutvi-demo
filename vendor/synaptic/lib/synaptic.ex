@@ -1,0 +1,255 @@
+defmodule Synaptic do
+  @moduledoc """
+  Synaptic provides a declarative workflow engine with a DSL for orchestrating
+  LLM-backed steps, human-in-the-loop pauses, and resumable executions.
+  """
+
+  alias Synaptic.{Engine, Security}
+  alias Phoenix.PubSub
+
+  @doc """
+  Starts a workflow module with the provided input context.
+
+  ## Options
+
+    * `:run_id` - Custom run ID (defaults to auto-generated)
+    * `:start_at_step` - Start execution at a specific step by name (atom).
+      The step must exist in the workflow definition. The provided context
+      should contain all data that would have been accumulated up to that step.
+
+  ## Examples
+
+      # Start from the beginning (default)
+      {:ok, run_id} = Synaptic.start(MyWorkflow, %{initial: :data})
+
+      # Start at a specific step with pre-populated context
+      {:ok, run_id} = Synaptic.start(MyWorkflow, %{precomputed: :value}, start_at_step: :middle_step)
+  """
+  def start(workflow_module, input \\ %{}, opts \\ [])
+
+  def start(workflow_module, input, opts) when is_map(input) do
+    Engine.start(workflow_module, input, opts)
+  end
+
+  def start(_workflow_module, input, _opts) do
+    {:error,
+     Synaptic.Validation.validation_failure(:workflow_input, nil, [
+       %{
+         path: "#",
+         code: :type_mismatch,
+         message: "Expected workflow input to be an object, got: #{Kernel.inspect(input)}."
+       }
+     ])}
+  end
+
+  @doc """
+  Resumes a previously suspended workflow run with the supplied payload.
+  """
+  def resume(run_id, payload) when is_binary(run_id) and is_map(payload) do
+    Engine.resume(run_id, payload)
+  end
+
+  def resume(_run_id, payload) do
+    {:error,
+     Synaptic.Validation.validation_failure(:resume_payload, nil, [
+       %{
+         path: "#",
+         code: :type_mismatch,
+         message: "Expected resume payload to be an object, got: #{Kernel.inspect(payload)}."
+       }
+     ])}
+  end
+
+  @doc """
+  Returns a snapshot of the current workflow state for a run id.
+
+  ## Options
+
+    * `:timeout` - Timeout in milliseconds for the snapshot call (default: 5000).
+      Use `:infinity` to wait indefinitely.
+  """
+  def inspect(run_id, timeout \\ 5000) when is_binary(run_id) do
+    Engine.inspect(run_id, timeout)
+  end
+
+  @doc """
+  Returns the step-level history collected for a workflow run.
+  """
+  def history(run_id) when is_binary(run_id) do
+    Engine.history(run_id)
+  end
+
+  @doc """
+  Returns the sanitized audit records captured for a workflow run or chat audit id.
+  """
+  def audit_records(audit_id) when is_binary(audit_id) do
+    Synaptic.Audit.records(audit_id)
+  end
+
+  @doc """
+  Verifies the append-only integrity chain for one audit stream.
+  """
+  def verify_audit_records(audit_id) when is_binary(audit_id) do
+    Synaptic.Audit.verify_records(audit_id)
+  end
+
+  @doc """
+  Fetches the compiled workflow definition for a module.
+  """
+  def workflow_definition(module) when is_atom(module) do
+    Engine.workflow_definition(module)
+  end
+
+  @doc """
+  Returns a list of currently running workflows with their run ids, workflow
+  module, and snapshot context.
+  """
+  def list_runs do
+    for {run_id, pid} <- Synaptic.Registry.entries(), reduce: [] do
+      acc ->
+        case safe_get_state(pid) do
+          %{workflow: workflow, context: context, status: status} ->
+            [%{run_id: run_id, workflow: workflow, context: context, status: status} | acc]
+
+          _ ->
+            acc
+        end
+    end
+  end
+
+  @doc """
+  Stops a running workflow. Returns `:ok` when the runner terminates or
+  `{:error, :not_found}` if the run id is unknown.
+  """
+  def stop(run_id, reason \\ :canceled) when is_binary(run_id) do
+    Engine.stop(run_id, reason)
+  end
+
+  @doc """
+  Subscribes the calling process to PubSub events for the given `run_id`.
+
+  Events are delivered as `{:synaptic_event, %{run_id: ..., event: ...}}` tuples.
+  """
+  def subscribe(run_id) when is_binary(run_id) do
+    PubSub.subscribe(Synaptic.PubSub, topic(run_id))
+  end
+
+  @doc """
+  Unsubscribes the calling process from workflow events for the given `run_id`.
+  """
+  def unsubscribe(run_id) when is_binary(run_id) do
+    PubSub.unsubscribe(Synaptic.PubSub, topic(run_id))
+  end
+
+  @doc """
+  Starts a voice session and a workflow run in one call.
+  """
+  def start_voice_session(workflow_module, input \\ %{}, opts \\ []) when is_map(input) do
+    Synaptic.Voice.start_session(workflow_module, input, opts)
+  end
+
+  @doc """
+  Attaches a voice session to an already running workflow run.
+  """
+  def attach_voice_session(run_id, opts \\ []) when is_binary(run_id) do
+    Synaptic.Voice.attach_run(run_id, opts)
+  end
+
+  @doc """
+  Returns the available built-in security posture profiles.
+  """
+  def security_profiles do
+    Security.available_profiles()
+  end
+
+  @doc """
+  Explains the effective security posture for a `:chat`, `:judgment`, or `:workflow` surface.
+  """
+  def explain_security(surface, opts \\ [])
+      when surface in [:chat, :workflow, :judgment] and is_list(opts) do
+    Security.explain(surface, opts)
+  end
+
+  @doc """
+  Returns a developer-facing troubleshooting guide for a runtime or guardrail error.
+  """
+  def explain_error(error) do
+    Synaptic.Troubleshooting.explain(error)
+  end
+
+  @doc """
+  Registers an agent/service definition in the directory.
+  """
+  def register_agent_service(service_id, spec, opts \\ []) when is_binary(service_id) do
+    Synaptic.Agent.register_service(service_id, spec, opts)
+  end
+
+  @doc """
+  Calls a registered service/instance/task reference through the agent router.
+  """
+  def agent_call(target, payload, opts \\ []) do
+    Synaptic.AgentRouter.call(target, payload, opts)
+  end
+
+  @doc """
+  Starts an asynchronous routed job and returns a job handle.
+  """
+  def agent_start_job(target, payload, opts \\ []) do
+    Synaptic.AgentRouter.start_job(target, payload, opts)
+  end
+
+  @doc """
+  Returns the status of an async agent job.
+  """
+  def agent_job_status(job_id, opts \\ []) when is_binary(job_id) do
+    Synaptic.AgentRouter.job_status(job_id, opts)
+  end
+
+  @doc """
+  Lists task references for a user from the built-in task reference memory.
+  """
+  def list_user_agent_tasks(user_id, filters \\ %{}, opts \\ []) when is_binary(user_id) do
+    Synaptic.AgentDirectory.list_user_tasks(user_id, filters, opts)
+  end
+
+  @doc """
+  Fetches one oversized or compacted tool result by handle when the context
+  hygiene layer has spilled it out of prompt history.
+  """
+  def fetch_spilled_tool_result(handle, opts \\ []) when is_binary(handle) and is_list(opts) do
+    Synaptic.ToolResultStore.fetch(handle, opts)
+  end
+
+  @doc """
+  Deletes retained artifacts associated with a run, including audit records and
+  spilled tool results. If the runner is still alive, it is stopped first so the
+  in-memory context and history are released immediately.
+  """
+  def delete_run_artifacts(run_id) when is_binary(run_id) do
+    run_stopped? =
+      case Engine.purge(run_id) do
+        :ok -> true
+        {:error, :not_found} -> false
+      end
+
+    summary = %{
+      run_id: run_id,
+      run_stopped: run_stopped?,
+      audit_records_deleted: Synaptic.Audit.delete_records(run_id),
+      spilled_tool_results_deleted: Synaptic.ToolResultStore.delete_by_run(run_id)
+    }
+
+    :ok = Synaptic.Audit.record_deletion(summary)
+    summary
+  end
+
+  defp topic(run_id), do: "synaptic:run:" <> run_id
+
+  defp safe_get_state(pid) do
+    try do
+      :sys.get_state(pid)
+    catch
+      :exit, _ -> nil
+    end
+  end
+end

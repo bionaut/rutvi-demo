@@ -1,0 +1,355 @@
+# Synaptic Voice Guide
+
+This guide documents Synaptic's voice subsystem and **principles for building real-time voice applications**: how to enable voice, configure it, and use the framework to get the desired behavior. Synaptic does not ship a UI or client; your application owns the transport and UX. The following sections outline how to structure your app so that workflows stay in Synaptic while voice I/O behaves the way you want.
+
+---
+
+## Mode-specific setup playbooks
+
+For implementation-grade, step-by-step setup instructions by mode:
+
+- Duplex: [`docs/voice_modes/duplex_setup.md`](docs/voice_modes/duplex_setup.md)
+- Turn-based: [`docs/voice_modes/turn_based_setup.md`](docs/voice_modes/turn_based_setup.md)
+- Realtime: [`docs/voice_modes/realtime_setup.md`](docs/voice_modes/realtime_setup.md)
+
+---
+
+## Frontend setup playbooks
+
+For frontend-only integration details (event wiring, UI states, recorder/playback controls):
+
+- Duplex frontend: [`docs/voice_frontend/duplex_frontend_setup.md`](docs/voice_frontend/duplex_frontend_setup.md)
+- Turn-based frontend: [`docs/voice_frontend/turn_based_frontend_setup.md`](docs/voice_frontend/turn_based_frontend_setup.md)
+- Realtime frontend: [`docs/voice_frontend/realtime_frontend_setup.md`](docs/voice_frontend/realtime_frontend_setup.md)
+
+For reusable personas, concrete tools, typed session context, and deterministic
+authorization, see [`docs/voice-profiles.md`](docs/voice-profiles.md).
+
+---
+
+## What the framework provides
+
+`Synaptic.Voice` is the only public voice API.
+
+- **Headless voice**: `mode: :turn_based` or `mode: :duplex`. Synaptic owns the session process; you push audio or text, call `end_turn`, and consume normalized events.
+- **Realtime voice**: `mode: :realtime` with provider-specific transport semantics:
+  - OpenAI: client-direct WebRTC + server sideband orchestration
+  - Gemini: server-relay WebSocket (client talks to your app, app talks to Gemini Live)
+
+Provider selection is per session with `provider: :openai | :gemini | :eleven_labs`
+for headless voice and `provider: :openai | :gemini` for realtime. Public mixed
+stacks are rejected.
+
+Choose `:realtime` when you want low-latency conversational transport. Choose `:turn_based` or `:duplex` when you want explicit turn control and direct STT/TTS orchestration.
+
+---
+
+## Enabling and configuring voice
+
+### Dependencies and application
+
+Add `synaptic` to your project. Synaptic’s application starts its own PubSub, Finch, and voice/realtime supervisors; you do not need to start these yourself.
+
+### Configuration
+
+**Compile-time** (e.g. `config/config.exs`):
+
+```elixir
+# Tools (for workflow LLM calls)
+config :synaptic, Synaptic.Tools.OpenAI,
+  model: "gpt-4o-mini"
+
+config :synaptic, Synaptic.Voice,
+  default_mode: :duplex,
+  default_provider: :openai,
+  audio_format_default: %{encoding: :pcm16le, sample_rate_hz: 24_000, channels: 1}
+
+config :synaptic, Synaptic.Voice.Providers.OpenAI,
+  default_experience: :legacy,
+  stt_model: "gpt-4o-mini-transcribe",
+  tts_model: "gpt-4o-mini-tts",
+  tts_audio_format: "pcm16",
+  realtime_model: "gpt-4o-realtime-preview",
+  realtime_response_mode: :orchestrated,
+  voice: "alloy",
+  realtime_2_1_model: "gpt-realtime-2.1",
+  realtime_2_1_transcription_model: "gpt-realtime-whisper",
+  realtime_2_1_reasoning_effort: "low",
+  realtime_2_1_response_mode: :native,
+  realtime_2_1_turn_detection: "semantic_vad",
+  realtime_2_1_turn_eagerness: "low",
+  realtime_2_1_noise_reduction: "near_field",
+  realtime_2_1_voice: "marin"
+
+config :synaptic, Synaptic.Voice.Providers.Gemini,
+  stt_model: "gemini-2.5-flash",
+  tts_model: "gemini-2.5-flash-preview-tts",
+  live_model: "gemini-2.5-flash-native-audio-preview",
+  voice: "Kore",
+  live_voice: "Kore"
+
+config :synaptic, Synaptic.Voice.Providers.ElevenLabs,
+  tts_model_id: "eleven_multilingual_v2",
+  stt_model_id: "scribe_v2",
+  tts_output_format: "pcm_24000",
+  include_timestamps: true
+```
+
+**Runtime / secrets** (e.g. `config/runtime.exs`):
+
+```elixir
+if api_key = System.get_env("OPENAI_API_KEY") do
+  config :synaptic, Synaptic.Tools.OpenAI, api_key: api_key
+  config :synaptic, Synaptic.Voice.Providers.OpenAI,
+    api_key: api_key,
+    realtime_2_1_model: System.get_env("OPENAI_REALTIME_2_1_MODEL", "gpt-realtime-2.1")
+end
+
+if gemini_api_key = System.get_env("GEMINI_API_KEY") do
+  config :synaptic, Synaptic.Voice.Providers.Gemini, api_key: gemini_api_key
+end
+
+if elevenlabs_api_key = System.get_env("ELEVENLABS_API_KEY") do
+  config :synaptic, Synaptic.Voice.Providers.ElevenLabs, api_key: elevenlabs_api_key
+end
+```
+
+---
+
+## Principles for realtime voice
+
+Realtime has two provider patterns:
+
+- **OpenAI realtime**: client talks directly to provider over WebRTC; server orchestrates through sideband.
+- **Gemini realtime**: server holds the Live WebSocket; client audio/text is relayed through your app.
+
+Create sessions with:
+
+```elixir
+Synaptic.Voice.start_session(MyWorkflow, %{},
+  provider: :openai,
+  mode: :realtime,
+  experience: :realtime_2_1,
+  profile: MyApp.Voice.AssistantProfile
+)
+
+Synaptic.Voice.start_session(MyWorkflow, %{}, provider: :gemini, mode: :realtime)
+```
+
+Use `transport` from the return payload to bootstrap client behavior:
+
+- OpenAI transport includes provider bootstrap fields like `client_secret`, `expires_at`, `model`, `voice`.
+- Gemini transport describes relay expectations (`audio_config`) and does not expose provider credentials to clients.
+
+New OpenAI applications should use `experience: :realtime_2_1`. It selects
+`gpt-realtime-2.1`, Marin, native responses, semantic VAD at low eagerness,
+near-field noise reduction, `gpt-realtime-whisper`, and low reasoning. Override
+the model globally with `OPENAI_REALTIME_2_1_MODEL`, or per session:
+
+```elixir
+Synaptic.Voice.start_session(MyWorkflow, %{},
+  provider: :openai,
+  mode: :realtime,
+  experience: :realtime_2_1,
+  provider_opts: [
+    realtime: [model: "gpt-realtime-2.1-mini", reasoning_effort: "low"]
+  ]
+)
+```
+
+Supported reasoning-effort experiments are `minimal`, `low`, `medium`, `high`,
+and `xhigh`. If omitted, OpenAI's model default is used.
+
+In the Realtime 2.1 experience, native response mode is the default. Realtime
+owns normal conversation and calls only the concrete capabilities compiled from
+the session's voice profile. Configure `gpt-5.6-luna` explicitly for workflows
+that should use Luna for routing, reasoning, or additional tool calls. Results
+are sent back to the same Realtime session so the audio model can phrase and
+speak them naturally.
+Set `response_mode: :orchestrated` (or
+per-session configuration) to keep the deterministic
+transcript -> workflow -> spoken-readout path for A/B comparisons.
+
+Orchestrated sessions may set `backchannel_delay_ms` to delay the optional
+spoken acknowledgement. If the workflow finishes before the delay, Synaptic
+cancels the acknowledgement and speaks the final answer directly. A value of
+`0` preserves immediate acknowledgement behavior. When an acknowledgement is
+needed, Realtime phrases it as a short, request-aware cue without claiming that
+the pending lookup, analysis, navigation, or change has already completed.
+
+### Compatibility behavior
+
+Existing OpenAI realtime calls that omit both `experience:` and `profile:` use
+`:legacy`. This preserves orchestrated workflow-on-every-turn behavior, the
+configured legacy model and voice, `server_vad`, and the original ephemeral
+session contract. Explicit `experience:` wins; otherwise a profile implies
+`:realtime_2_1`. Applications may set `default_experience: :realtime_2_1` only
+after reviewing all unversioned callers.
+
+`SessionBootstrap.create_ephemeral_session/1` retains its original endpoint,
+flat request schema, and returned session shape. The new
+`create_client_secret/1` function uses the GA client-secret endpoint and nested
+session schema. `create_browser_bootstrap/1` chooses the correct path from the
+resolved experience and exposes a stable transport map to application code.
+
+### Realtime operation matrix
+
+- OpenAI realtime supports: `client_connected/2`, `client_disconnected/2`, `ingest_provider_event/2`.
+- Gemini realtime supports: `push_audio/3`, `push_text/3`, `end_turn/2`, `cancel_output/1`.
+- Unsupported operations return `{:error, :unsupported_for_mode}`.
+
+### Workflow design for realtime
+
+In native mode, treat the workflow as an on-demand tool: accept the delegated
+query, use the application-configured reasoning model and tools, and return
+factual results for Realtime 2.1 to express naturally.
+
+The following every-turn workflow rules apply to orchestrated mode:
+
+- The realtime sideband resumes the workflow with the **final user transcript**. The default mapping sends `%{human_input_text: transcript}` (or `%{answer: transcript}` if the suspended step’s `resume_schema` has `:answer`).
+- Design your workflow so that the first step that needs user speech has `suspend: true` and `resume_schema: %{human_input_text: :string}` (or `answer: :string`). When the step runs after resume, read from `context[:human_input][:human_input_text]` or `context[:human_input][:answer]` (or fallback to `context.human_input_text` / `context.answer`) and put the result into context (e.g. `query`).
+- After tools and LLM, produce a step result that includes the spoken reply (e.g. `assistant_answer`). The framework will send the appropriate provider instructions so the provider speaks that content.
+- To support multiple turns, add a later step that again suspends with `resume_schema: %{human_input_text: :string}`; on resume, route back to your router or first logic step with the new query so the same pipeline runs again.
+
+---
+
+## Realtime API summary (server)
+
+| Function | Purpose |
+|----------|---------|
+| `Synaptic.Voice.start_session(workflow_module, input, provider: :openai | :gemini, mode: :realtime, ...)` | Start a run and realtime session; return payload for the client. |
+| `Synaptic.Voice.subscribe_session(session_id)` | Subscribe to session events (`{:synaptic_voice_event, envelope}`). |
+| `Synaptic.Voice.unsubscribe_session(session_id)` | Unsubscribe. |
+| `Synaptic.Voice.client_connected(session_id)` | OpenAI realtime only. |
+| `Synaptic.Voice.client_disconnected(session_id)` | OpenAI realtime only. |
+| `Synaptic.Voice.ingest_provider_event(session_id, payload)` | OpenAI realtime only. |
+| `Synaptic.Voice.approve_capability(session_id, capability_name)` | Grant the next invocation of a pending consequential capability; OpenAI realtime only. |
+| `Synaptic.Voice.push_audio(session_id, chunk)` | Headless and Gemini realtime. |
+| `Synaptic.Voice.push_text(session_id, text)` | Headless and Gemini realtime. |
+| `Synaptic.Voice.stop_session(session_id, reason)` | Stop the session. |
+
+---
+
+## Realtime session events (PubSub)
+
+Subscribe with `Synaptic.Voice.subscribe_session(session_id)`. All voice modes publish on topic `"synaptic:voice:session:" <> session_id` as:
+
+`{:synaptic_voice_event, envelope}`
+
+Envelope fields include: `:event`, `:data`, `:session_id`, `:run_id`, `:seq`, `:ts_ms`.
+
+Useful events:
+
+- `:session_started`, `:session_stopped`, `:session_error`
+- `:input_partial_text`, `:input_final_text`
+- `:assistant_response_started`, `:assistant_text_chunk`, `:assistant_response_done`
+- `:duplex_state_changed`
+- `:provider_outbound` — the payload to send to the provider on the data channel (e.g. `response.create`); push this to your client so it can forward it.
+
+Use these to drive UI (status, transcripts) and to relay `:provider_outbound` to the client.
+
+---
+
+## Principles for headless voice
+
+When you own the transport (e.g. your own WebSocket) and want Synaptic to run STT/TTS and workflows:
+
+- **Start or attach**: `Synaptic.Voice.start_session(workflow_module, input, opts)` starts a run and session; `attach_run(run_id, opts)` attaches a session to an existing run. Both return `{:ok, %{session_id, run_id, mode, stack, transport}}`.
+- **Provider bundle**: pass `provider: :openai | :gemini | :eleven_labs`. Router derives pure stacks internally; public `stack` is rejected unless `_allow_custom_stack: true` (internal/tests).
+- **Input**: Stream audio with `push_audio(session_id, chunk, opts)` and/or send text with `push_text(session_id, text, opts)`. When the user turn is complete, call `end_turn(session_id, opts)` so STT finalizes (if applicable) and the run resumes with the transcript.
+- **Output**: Subscribe with `Synaptic.Voice.subscribe_session(session_id)`; events arrive on topic `"synaptic:voice:session:" <> session_id` as `{:synaptic_voice_event, envelope}`. Use `:assistant_text_chunk`, `:assistant_audio_chunk`, etc., to drive your playback and UI. Built-in headless providers now default to one TTS generation per assistant turn for more consistent tone; segmented TTS remains the fallback for adapters without capability metadata.
+- **Interruption**: In duplex mode, call `cancel_output(session_id)` when the user interrupts; the framework emits `:duplex_interruption` and transitions back to listening.
+- **Resume mapping**: By default, the transcript is sent as `%{human_input_text: transcript}` or `%{answer: transcript}` depending on the step’s `resume_schema`. Override with `resume_mapper: fn transcript, state -> payload end` in session options.
+- **Unsupported operations**: functions that do not make sense for provider+mode return `{:error, :unsupported_for_mode}`.
+- **Cleanup**: Call `Synaptic.Voice.stop_session(session_id, reason)` and unsubscribe when the session ends.
+
+### Optional turn admission
+
+Headless sessions can defer workflow resume until an application policy decides
+whether a final transcript is complete. Pass `turn_admission` as a one- or
+two-argument function, or as a module implementing
+`Synaptic.Voice.TurnAdmission`:
+
+```elixir
+turn_admission = fn input, _opts ->
+  if incomplete?(input.accumulated_transcript) do
+    {:keep_listening, %{reason: :incomplete}}
+  else
+    {:commit, %{reason: :complete}}
+  end
+end
+
+{:ok, session} =
+  Synaptic.Voice.attach_run(run_id,
+    provider: :eleven_labs,
+    mode: :duplex,
+    turn_admission: turn_admission,
+    turn_admission_opts: [policy: :my_app]
+  )
+```
+
+The policy input contains `:prompt`, `:latest_transcript`,
+`:accumulated_transcript`, `:transcript_count`, and the original
+`:end_turn_opts`. Policies run outside the session GenServer, so model- or
+network-backed decisions do not block voice control messages. Policy failures
+emit a `:session_error` and fall back to `:commit` so accepted speech is not
+silently lost.
+
+Providers declare whether final transcripts are segments or cumulative
+hypotheses. Override this only for custom adapters with
+`stt_final_mode: :segment | :cumulative | :replace`.
+
+---
+
+## Headless: modules and event envelope
+
+- **Modules**: `Synaptic.Voice` (API), plus internal router, registry,
+  supervisor, session-engine, event, segmentation, and provider-adapter modules.
+- **Headless output strategies**: headless sessions select an internal TTS strategy from provider capability metadata. Current strategies are `:segmented_batch`, `:single_shot`, and reserved `:streaming`.
+- **Envelope**: guaranteed fields `:v`, `:session_id`, `:run_id`, `:seq`, `:ts_ms`, `:event`, `:data`.
+- **Event names**: `:turn_started`, `:input_partial_text`, `:input_final_text`, `:turn_admission_started`, `:turn_admission_decided`, `:assistant_text_chunk`, `:assistant_text_done`, `:assistant_audio_chunk`, `:assistant_audio_done`, `:duplex_interruption`, `:duplex_state_changed`, `:session_error`, `:session_stopped`.
+
+---
+
+## Configuration reference
+
+Defaults are:
+
+- `default_mode: :duplex`
+- `default_provider: :openai`
+- `audio_format_default: %{encoding: :pcm16le, sample_rate_hz: 24_000, channels: 1}`
+
+---
+
+## Telemetry
+
+- **Headless**: `[:synaptic, :voice, :session, :start|:stop]`, `[:synaptic, :voice, :stt, :partial|:final|:error]`, `[:synaptic, :voice, :tts, :chunk|:done|:error]`, `[:synaptic, :voice, :duplex, :interruption]`, `[:synaptic, :voice, :latency]` (e.g. `stt_first_partial_ms`, `llm_first_chunk_ms`, `tts_first_chunk_ms`, `turn_total_ms`).
+- **Realtime**: `[:synaptic, :voice, :realtime, :session, :start]` and related.
+
+---
+
+## Testing
+
+- Voice tests: `test/synaptic/voice/event_test.exs`, `text_segmenter_test.exs`, `session_test.exs`, `openai_test.exs`.
+- Synthetic latency: `mix run scripts/voice_latency_harness.exs`.
+
+---
+
+## Limitations
+
+- No built-in UI or client transport; your app provides both.
+- Headless OpenAI STT batches audio and transcribes on `end_turn`; partials can be simulated via `push_audio(..., partial_text: ...)`.
+- TTS playback is your responsibility. Depending on provider capabilities, headless voice may synthesize per segment or once per assistant turn.
+- Realtime behavior is provider-specific: OpenAI uses client-direct WebRTC + sideband; Gemini uses server-relay Live WebSocket.
+
+---
+
+## Extending to another provider
+
+Implement the headless behaviours:
+
+- `Synaptic.Voice.STTAdapter`
+- `Synaptic.Voice.TTSAdapter`
+
+Realtime is not provider-neutral: OpenAI and Gemini each use dedicated engines, and
+`provider: :eleven_labs` is headless-only.

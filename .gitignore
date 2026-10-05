@@ -1,0 +1,42 @@
+# Elixir build outputs and downloaded dependencies (including vendored projects).
+_build/
+deps/
+/cover/
+.cover/
+/doc/
+*.ez
+erl_crash.dump
+
+# Local state and generated output.
+/data/
+/codex-scratch/
+/local-artifacts/
+/tmp/
+/coverage/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+*.db-wal
+*.db-shm
+*.log
+
+# Credentials and local configuration. Keep examples distributable.
+.env
+.env.*
+!.env.example
+*.secret.exs
+*.token
+*.pem
+*.key
+/secrets/
+/.codex/
+/.agents/
+
+# Editor and OS files.
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
