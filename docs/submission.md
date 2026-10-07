@@ -4,7 +4,7 @@ Author and responsible contributor: Ján Krajňák.
 
 ## Time spent and reused work
 
-Approximately **11 hours of active work**, estimated by the author, on the exercise's implementation, testing, local deployment, and documentation. This is an estimate, not a time-tracking record. It is separate from the elapsed time of individual AI generation runs.
+Approximately **7 hours of active work**, estimated by the author, on the exercise's implementation, testing, local deployment, and documentation. This is an estimate, not a time-tracking record. It is separate from the elapsed time of individual AI generation runs.
 
 The exercise reuses the author's existing **Synaptic 0.3.0-alpha.13** framework, included as source under `vendor/synaptic`. Prior development of that framework is not included in the exercise estimate. Its source revision and copied inventory are documented in [source provenance](synaptic-source.md).
 
