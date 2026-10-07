@@ -7,6 +7,7 @@ The repository includes an offline deterministic adapter and real AI through an 
 - [Assignment (PDF)](docs/spec/assignment.pdf) · [Searchable text](docs/spec/assignment.txt)
 - [HTTP API](docs/api.md) · [Local Kubernetes](docs/kubernetes.md)
 - [Architecture and limitations](docs/implementation-plan.md) · [Latest verification](docs/verification-2026-10-05-sol.md)
+- [Submission notes: time, AI assistance, libraries, and verification](docs/submission.md)
 
 ## Prerequisites
 
